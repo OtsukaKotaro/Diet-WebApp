@@ -1,21 +1,31 @@
 "use client";
 import { useState } from "react";
- export default function Home(){
+import Link from "next/link";
+
+export default function Home(){
   const[weight, setWeight] = useState("");
 
   return(
-    <main style = {{ padding: 40 }}>
-      <input
-        type = "number"
-        placeholder = "体重を入力(kg)"
-        value = {weight}
-        onChange = {(e) => setWeight( e.target.value )}
-        className = "border p-2"
-      />
+    <main style = {{
+      padding: "1rem" }}>
+      <h1 style = {{
+        fontSize: "2rem",
+        fontWeight: "bold"
+      }}>
+        ダイエットサポート
+      </h1>
 
-      <p style =  {{ marginTop: 20 }}>
-        入力した体重: {weight} kg
-      </p>
+      <ul>
+        <li>
+          <Link href = "/bmi" >BMI計算</Link>
+        </li>
+        <li>
+          <Link href = "/progress-diagnosis">ダイエット進捗診断</Link>
+        </li>
+        <li>
+          <Link href = "/plan-creation">プラン作成</Link>
+        </li>
+      </ul>
     </main>
   )
  }
