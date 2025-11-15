@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { calculateBMI, judgeBMI } from "@/lib/bmi";
-import Link from "next/link";
 
 export default function Page() {
   const [heightCm, setHeightCm] = useState<string>("");
@@ -55,8 +54,8 @@ export default function Page() {
   const labelStyle: React.CSSProperties = {
     display: "grid",
     gap: "0.25rem",
-    fontSize: "0.875rem", // text-sm 相当
-    fontWeight: 500, // font-medium 相当
+    fontSize: "0.875rem",
+    fontWeight: 500,
   };
 
   const formStyle: React.CSSProperties = {
@@ -125,13 +124,7 @@ export default function Page() {
           <p>判定: {category}</p>
         </section>
       )}
-
-      <Link
-        href="/"
-        style={{ display: "inline-block", marginTop: "1rem", color: "blue" }}
-      >
-        トップページへ
-      </Link>
     </main>
   );
 }
+

@@ -13,7 +13,6 @@ import {
   calAchievementDate,
   calNeededDailyChange,
 } from "@/lib/progress-diagnosis";
-import Link from "next/link";
 
 type DiagnosisResult = {
   totalChange: number;
@@ -147,7 +146,7 @@ export default function ProgressDiagnosisPage() {
   };
 
   return (
-    <div style={containerStyle}>
+    <main style={containerStyle}>
       <h1
         style={{
           fontWeight: "bold",
@@ -252,14 +251,7 @@ export default function ProgressDiagnosisPage() {
           </div>
         </div>
       )}
-
-      <Link
-        href="/"
-        style={{ display: "inline-block", marginTop: "1rem", color: "blue" }}
-      >
-        トップページへ
-      </Link>
-    </div>
+    </main>
   );
 }
 
