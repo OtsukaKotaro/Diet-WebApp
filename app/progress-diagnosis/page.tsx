@@ -13,6 +13,7 @@ import {
   calAchievementDate,
   calNeededDailyChange,
 } from "@/lib/progress-diagnosis";
+import styles from "./page.module.css";
 
 type DiagnosisResult = {
   totalChange: number;
@@ -76,7 +77,7 @@ export default function ProgressDiagnosisPage() {
           realDailyChange
         );
         if (!Number.isNaN(achievementDateObj.getTime())) {
-          achievementDate = achievementDateObj.toISOString().slice(0, 10); // yyyy-mm-dd
+          achievementDate = achievementDateObj.toISOString().slice(0, 10);
         }
       }
 
@@ -101,156 +102,163 @@ export default function ProgressDiagnosisPage() {
     }
   };
 
-  const containerStyle: React.CSSProperties = {
-    maxWidth: 480,
-    margin: "0 auto",
-    padding: "1rem",
-    fontFamily: "sans-serif",
-  };
-
-  const labelStyle: React.CSSProperties = {
-    display: "block",
-    marginBottom: "4px",
-    fontSize: "0.875rem",
-    fontWeight: 500,
-  };
-
-  const inputStyle: React.CSSProperties = {
-    width: "100%",
-    padding: "8px",
-    marginBottom: "16px",
-    boxSizing: "border-box",
-  };
-
-  const buttonStyle: React.CSSProperties = {
-    padding: "10px 16px",
-    cursor: "pointer",
-    backgroundColor: "#0070f3",
-    color: "#fff",
-    border: "none",
-    borderRadius: "4px",
-    marginTop: "8px",
-  };
-
-  const errorStyle: React.CSSProperties = {
-    color: "red",
-    marginTop: "16px",
-  };
-
-  const resultStyle: React.CSSProperties = {
-    marginTop: "24px",
-    padding: "16px",
-    border: "1px solid #ddd",
-    borderRadius: "4px",
-    backgroundColor: "#fafafa",
-  };
-
   return (
-    <main style={containerStyle}>
-      <h1
-        style={{
-          fontWeight: "bold",
-          fontSize: "2rem",
-          marginBottom: "1rem",
-        }}
-      >
-        ダイエット進捗診断
-      </h1>
+    <main className={styles.page}>
+      <div className={styles.inner}>
+        <h1 className={styles.title}>ダイエット進捗診断</h1>
+        <p className={styles.subtitle}>
+          ダイエット開始日・現在体重・目標体重を入力して、進捗率やペースを診断します。
+        </p>
 
-      <div>
-        <label style={labelStyle} htmlFor="startDate">
-          開始日 (yyyy-mm-dd)
-        </label>
-        <input
-          id="startDate"
-          type="date"
-          style={inputStyle}
-          required
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-        />
-
-        <label style={labelStyle} htmlFor="startWeight">
-          開始体重 (kg)
-        </label>
-        <input
-          id="startWeight"
-          type="number"
-          style={inputStyle}
-          value={startWeight}
-          onChange={(e) => setStartWeight(e.target.value)}
-          placeholder="例: 80"
-        />
-
-        <label style={labelStyle} htmlFor="targetDate">
-          目標日 (yyyy-mm-dd)
-        </label>
-        <input
-          id="targetDate"
-          type="date"
-          style={inputStyle}
-          required
-          value={targetDate}
-          onChange={(e) => setTargetDate(e.target.value)}
-        />
-
-        <label style={labelStyle} htmlFor="goalWeight">
-          目標体重 (kg)
-        </label>
-        <input
-          id="goalWeight"
-          type="number"
-          style={inputStyle}
-          value={goalWeight}
-          onChange={(e) => setGoalWeight(e.target.value)}
-          placeholder="例: 70"
-        />
-
-        <label style={labelStyle} htmlFor="currentWeight">
-          現在体重 (kg)
-        </label>
-        <input
-          id="currentWeight"
-          type="number"
-          style={inputStyle}
-          value={currentWeight}
-          onChange={(e) => setCurrentWeight(e.target.value)}
-          placeholder="例: 75"
-        />
-
-        <button type="button" style={buttonStyle} onClick={handleDiagnosis}>
-          診断する
-        </button>
-      </div>
-
-      {error && <div style={errorStyle}>{error}</div>}
-
-      {result && (
-        <div style={resultStyle}>
-          <div>目標減量: {result.totalChange.toFixed(1)} kg</div>
-          <div>暫定減量: {result.currentChange.toFixed(1)} kg</div>
-          <div>進捗率: {result.progress.toFixed(1)} %</div>
-          <div>経過日数: {result.daysElapsed.toFixed(1)} 日</div>
-          <div>残り日数: {result.remainingDays.toFixed(1)} 日</div>
-          <div>残り減量: {result.remainingChange.toFixed(1)} kg</div>
+        <div className={styles.form}>
           <div>
-            理想のペース: 1日あたり {result.idealDailyChange.toFixed(3)} kg
+            <label className={styles.label} htmlFor="startDate">
+              開始日 (yyyy-mm-dd)
+            </label>
+            <input
+              id="startDate"
+              type="date"
+              className={styles.input}
+              required
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
           </div>
+
           <div>
-            現在のペース: 1日あたり {result.realDailyChange.toFixed(3)} kg
+            <label className={styles.label} htmlFor="startWeight">
+              開始体重 (kg)
+            </label>
+            <input
+              id="startWeight"
+              type="number"
+              className={styles.input}
+              value={startWeight}
+              onChange={(e) => setStartWeight(e.target.value)}
+              placeholder="例: 80"
+            />
           </div>
+
           <div>
-            達成予定日:{" "}
-            {result.achievementDate
-              ? `${result.achievementDate} 日`
-              : "このままでは達成できません"}
+            <label className={styles.label} htmlFor="targetDate">
+              目標日 (yyyy-mm-dd)
+            </label>
+            <input
+              id="targetDate"
+              type="date"
+              className={styles.input}
+              required
+              value={targetDate}
+              onChange={(e) => setTargetDate(e.target.value)}
+            />
           </div>
+
           <div>
-            目標達成に必要なペース: 1日あたり{" "}
-            {result.neededDailyChange.toFixed(3)} kg
+            <label className={styles.label} htmlFor="goalWeight">
+              目標体重 (kg)
+            </label>
+            <input
+              id="goalWeight"
+              type="number"
+              className={styles.input}
+              value={goalWeight}
+              onChange={(e) => setGoalWeight(e.target.value)}
+              placeholder="例: 70"
+            />
           </div>
+
+          <div>
+            <label className={styles.label} htmlFor="currentWeight">
+              現在体重 (kg)
+            </label>
+            <input
+              id="currentWeight"
+              type="number"
+              className={styles.input}
+              value={currentWeight}
+              onChange={(e) => setCurrentWeight(e.target.value)}
+              placeholder="例: 75"
+            />
+          </div>
+
+          <button
+            type="button"
+            className={styles.button}
+            onClick={handleDiagnosis}
+          >
+            診断する
+          </button>
         </div>
-      )}
+
+        {error && <div className={styles.error}>{error}</div>}
+
+        {result && (
+          <div className={styles.result}>
+            <div className={styles.resultRow}>
+              <span className={styles.resultKey}>目標減量</span>
+              <span className={styles.resultValue}>
+                {result.totalChange.toFixed(1)} kg
+              </span>
+            </div>
+            <div className={styles.resultRow}>
+              <span className={styles.resultKey}>暫定減量</span>
+              <span className={styles.resultValue}>
+                {result.currentChange.toFixed(1)} kg
+              </span>
+            </div>
+            <div className={styles.resultRow}>
+              <span className={styles.resultKey}>進捗率</span>
+              <span className={styles.resultValue}>
+                {result.progress.toFixed(1)} %
+              </span>
+            </div>
+            <div className={styles.resultRow}>
+              <span className={styles.resultKey}>経過日数</span>
+              <span className={styles.resultValue}>
+                {result.daysElapsed.toFixed(1)} 日
+              </span>
+            </div>
+            <div className={styles.resultRow}>
+              <span className={styles.resultKey}>残り日数</span>
+              <span className={styles.resultValue}>
+                {result.remainingDays.toFixed(1)} 日
+              </span>
+            </div>
+            <div className={styles.resultRow}>
+              <span className={styles.resultKey}>残り減量</span>
+              <span className={styles.resultValue}>
+                {result.remainingChange.toFixed(1)} kg
+              </span>
+            </div>
+            <div className={styles.resultRow}>
+              <span className={styles.resultKey}>理想のペース</span>
+              <span className={styles.resultValue}>
+                {result.idealDailyChange.toFixed(3)} kg/日
+              </span>
+            </div>
+            <div className={styles.resultRow}>
+              <span className={styles.resultKey}>現在のペース</span>
+              <span className={styles.resultValue}>
+                {result.realDailyChange.toFixed(3)} kg/日
+              </span>
+            </div>
+            <div className={styles.resultRow}>
+              <span className={styles.resultKey}>達成予定日</span>
+              <span className={styles.resultValue}>
+                {result.achievementDate
+                  ? `${result.achievementDate} 頃`
+                  : "このままでは達成が難しいです"}
+              </span>
+            </div>
+            <div className={styles.resultRow}>
+              <span className={styles.resultKey}>必要なペース</span>
+              <span className={styles.resultValue}>
+                {result.neededDailyChange.toFixed(3)} kg/日
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
     </main>
   );
 }

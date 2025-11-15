@@ -7,8 +7,9 @@ import {
   calculateIdealDailyChange,
   generatePlan,
 } from "@/lib/plan-creation";
+import styles from "./page.module.css";
 
-export default function Page() {
+export default function PlanCreationPage() {
   const [startDate, setStartDate] = useState("");
   const [startWeight, setStartWeight] = useState("");
   const [targetDate, setTargetDate] = useState("");
@@ -90,205 +91,154 @@ export default function Page() {
     setPlan(planArr);
   };
 
-  const containerStyle: React.CSSProperties = {
-    padding: "1rem",
-    maxWidth: 480,
-    margin: "0 auto",
-  };
-
-  const labelStyle: React.CSSProperties = {
-    display: "block",
-    marginBottom: "4px",
-    fontSize: "0.875rem",
-    fontWeight: 500,
-  };
-
   return (
-    <main style={containerStyle}>
-      <h1 style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "1rem" }}>
-        ダイエットプラン作成
-      </h1>
+    <main className={styles.page}>
+      <div className={styles.inner}>
+        <h1 className={styles.title}>ダイエットプラン作成</h1>
+        <p className={styles.subtitle}>
+          目標日と目標体重から、無理のない減量ペースとステップを計算します。
+        </p>
 
-      <form
-        style={{ display: "grid", gap: "1rem" }}
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleCalculate();
-        }}
-      >
-        <div>
-          <label style={labelStyle}>開始日 (yyyy-mm-dd)</label>
-          <input
-            type="date"
-            required
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-          />
-        </div>
-
-        <div>
-          <label style={labelStyle}>開始体重 (kg)</label>
-          <input
-            type="number"
-            value={startWeight}
-            onChange={(e) => setStartWeight(e.target.value)}
-            placeholder="例: 80"
-          />
-        </div>
-
-        <div>
-          <label style={labelStyle}>目標日 (yyyy-mm-dd)</label>
-          <input
-            type="date"
-            required
-            value={targetDate}
-            onChange={(e) => setTargetDate(e.target.value)}
-          />
-        </div>
-
-        <div>
-          <label style={labelStyle}>目標体重 (kg)</label>
-          <input
-            type="number"
-            value={goalWeight}
-            onChange={(e) => setGoalWeight(e.target.value)}
-            placeholder="例: 70"
-          />
-        </div>
-
-        <div>
-          <label style={labelStyle}>何日ごとのプランを作成するか</label>
-          <input
-            type="number"
-            value={intervalDays}
-            onChange={(e) => setIntervalDays(e.target.value)}
-            placeholder="例: 3"
-          />
-        </div>
-
-        <button
-          type="submit"
-          style={{
-            padding: "10px 16px",
-            cursor: "pointer",
-            backgroundColor: "#2563eb",
-            color: "#fff",
-            border: "none",
-            borderRadius: "4px",
-            marginTop: "0.5rem",
-            justifySelf: "flex-start",
+        <form
+          className={styles.form}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleCalculate();
           }}
         >
-          プランを作成
-        </button>
-      </form>
+          <div>
+            <label className={styles.label}>開始日 (yyyy-mm-dd)</label>
+            <input
+              className={styles.input}
+              type="date"
+              required
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+          </div>
 
-      <section style={{ marginTop: "1.5rem" }}>
-        <h2 style={{ fontSize: "1.15rem", fontWeight: 600, marginBottom: 8 }}>
-          計算結果
-        </h2>
+          <div>
+            <label className={styles.label}>開始体重 (kg)</label>
+            <input
+              className={styles.input}
+              type="number"
+              value={startWeight}
+              onChange={(e) => setStartWeight(e.target.value)}
+              placeholder="例: 80"
+            />
+          </div>
 
-        {error && (
-          <p style={{ color: "red", marginBottom: "0.75rem" }}>{error}</p>
-        )}
+          <div>
+            <label className={styles.label}>目標日 (yyyy-mm-dd)</label>
+            <input
+              className={styles.input}
+              type="date"
+              required
+              value={targetDate}
+              onChange={(e) => setTargetDate(e.target.value)}
+            />
+          </div>
 
-        {totalChange !== null &&
-        totalDays !== null &&
-        idealDailyChange !== null ? (
-          <>
-            <p>目標減量: {totalChange.toFixed(1)} kg</p>
-            <p>減量期間: {totalDays} 日</p>
-            <p>理想のペース: {idealDailyChange.toFixed(3)} kg/日</p>
+          <div>
+            <label className={styles.label}>目標体重 (kg)</label>
+            <input
+              className={styles.input}
+              type="number"
+              value={goalWeight}
+              onChange={(e) => setGoalWeight(e.target.value)}
+              placeholder="例: 70"
+            />
+          </div>
 
-            <h3 style={{ marginTop: "1rem", fontWeight: 600 }}>プラン</h3>
-            {plan.length === 0 ? (
-              <p>プランが生成されませんでした。</p>
-            ) : (
-              <table
-                style={{
-                  marginTop: "0.5rem",
-                  borderCollapse: "collapse",
-                  width: "100%",
-                  fontSize: "0.9rem",
-                }}
-              >
-                <thead>
-                  <tr>
-                    <th
-                      style={{
-                        border: "1px solid #e5e7eb",
-                        padding: "0.25rem 0.5rem",
-                        textAlign: "left",
-                      }}
-                    >
-                      ステップ
-                    </th>
-                    <th
-                      style={{
-                        border: "1px solid #e5e7eb",
-                        padding: "0.25rem 0.5rem",
-                        textAlign: "right",
-                      }}
-                    >
-                      経過日数(日)
-                    </th>
-                    <th
-                      style={{
-                        border: "1px solid #e5e7eb",
-                        padding: "0.25rem 0.5rem",
-                        textAlign: "right",
-                      }}
-                    >
-                      目標体重(kg)
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {plan.map((weight, index) => {
-                    const intervalNum = Number(intervalDays) || 0;
-                    const dayNumber =
-                      intervalNum > 0 ? intervalNum * (index + 1) : null;
-                    return (
-                      <tr key={index}>
-                        <td
-                          style={{
-                            border: "1px solid #e5e7eb",
-                            padding: "0.25rem 0.5rem",
-                          }}
-                        >
-                          {index + 1}
-                        </td>
-                        <td
-                          style={{
-                            border: "1px solid #e5e7eb",
-                            padding: "0.25rem 0.5rem",
-                            textAlign: "right",
-                          }}
-                        >
-                          {dayNumber !== null ? dayNumber : "-"}
-                        </td>
-                        <td
-                          style={{
-                            border: "1px solid #e5e7eb",
-                            padding: "0.25rem 0.5rem",
-                            textAlign: "right",
-                          }}
-                        >
-                          {weight.toFixed(1)}
-                        </td>
+          <div>
+            <label className={styles.label}>何日ごとのプランを作成するか</label>
+            <input
+              className={styles.input}
+              type="number"
+              value={intervalDays}
+              onChange={(e) => setIntervalDays(e.target.value)}
+              placeholder="例: 3"
+            />
+          </div>
+
+          <button type="submit" className={styles.button}>
+            プランを作成
+          </button>
+        </form>
+
+        <section className={styles.resultSection}>
+          <h2 className={styles.resultTitle}>計算結果</h2>
+
+          {error && <p className={styles.error}>{error}</p>}
+
+          {totalChange !== null &&
+          totalDays !== null &&
+          idealDailyChange !== null ? (
+            <>
+              <p className={styles.resultText}>
+                目標減量: {totalChange.toFixed(1)} kg
+              </p>
+              <p className={styles.resultText}>
+                減量期間: {totalDays} 日
+              </p>
+              <p className={styles.resultText}>
+                理想のペース: {idealDailyChange.toFixed(3)} kg/日
+              </p>
+
+              <div className={styles.tableWrapper}>
+                <h3 className={styles.resultTitle}>プラン</h3>
+                {plan.length === 0 ? (
+                  <p className={styles.resultText}>
+                    プランが生成されませんでした。
+                  </p>
+                ) : (
+                  <table className={styles.table}>
+                    <thead>
+                      <tr>
+                        <th className={styles.th}>ステップ</th>
+                        <th className={`${styles.th} ${styles.tdRight}`}>
+                          経過日数(日)
+                        </th>
+                        <th className={`${styles.th} ${styles.tdRight}`}>
+                          目標体重(kg)
+                        </th>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            )}
-          </>
-        ) : (
-          !error && (
-            <p>必要な項目を入力し、「プランを作成」を押してください。</p>
-          )
-        )}
-      </section>
+                    </thead>
+                    <tbody>
+                      {plan.map((weight, index) => {
+                        const intervalNum = Number(intervalDays) || 0;
+                        const dayNumber =
+                          intervalNum > 0 ? intervalNum * (index + 1) : null;
+                        return (
+                          <tr key={index}>
+                            <td className={styles.td}>{index + 1}</td>
+                            <td
+                              className={`${styles.td} ${styles.tdRight}`}
+                            >
+                              {dayNumber !== null ? dayNumber : "-"}
+                            </td>
+                            <td
+                              className={`${styles.td} ${styles.tdRight}`}
+                            >
+                              {weight.toFixed(1)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </>
+          ) : (
+            !error && (
+              <p className={styles.resultText}>
+                必要な項目を入力し、「プランを作成」を押してください。
+              </p>
+            )
+          )}
+        </section>
+      </div>
     </main>
   );
 }

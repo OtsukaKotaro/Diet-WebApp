@@ -1,72 +1,88 @@
-"use client";
-
 import Link from "next/link";
+import styles from "./page.module.css";
 
-export default function Home() {
-  const containerStyle: React.CSSProperties = {
-    padding: "1.5rem",
-    maxWidth: 640,
-    margin: "0 auto",
-  };
+type Feature = {
+  href: string;
+  title: string;
+  desc: string;
+  badge: string;
+};
 
-  const gridStyle: React.CSSProperties = {
-    display: "grid",
-    gap: "1rem",
-    marginTop: "1.5rem",
-  };
+const features: Feature[] = [
+  {
+    href: "/bmi",
+    title: "BMIチェック",
+    desc: "身長と体重から、現在のBMIと体型の目安を確認します。",
+    badge: "基本",
+  },
+  {
+    href: "/progress-diagnosis",
+    title: "進捗診断",
+    desc: "開始日・現在体重・目標体重から、進捗率やペースを診断します。",
+    badge: "モチベ維持",
+  },
+  {
+    href: "/plan-creation",
+    title: "プラン作成",
+    desc: "目標日と目標体重から、無理のない減量プランを自動で作成します。",
+    badge: "計画づくり",
+  },
+];
 
-  const tileStyle: React.CSSProperties = {
-    display: "block",
-    padding: "1rem 1.25rem",
-    borderRadius: "0.5rem",
-    border: "1px solid #e5e7eb",
-    backgroundColor: "#f9fafb",
-    textDecoration: "none",
-    color: "inherit",
-  };
-
-  const tileTitleStyle: React.CSSProperties = {
-    fontWeight: "bold",
-    marginBottom: "0.25rem",
-  };
-
-  const tileDescStyle: React.CSSProperties = {
-    fontSize: "0.875rem",
-    color: "#4b5563",
-  };
-
+export default function HomePage() {
   return (
-    <main style={containerStyle}>
-      <h1
-        style={{
-          fontSize: "2rem",
-          fontWeight: "bold",
-        }}
-      >
-        ダイエットサポート
-      </h1>
-
-      <div style={gridStyle}>
-        <Link href="/bmi" style={tileStyle}>
-          <div style={tileTitleStyle}>BMI計算</div>
-          <div style={tileDescStyle}>
-            身長と体重から現在のBMIと状態をチェックします。
+    <main className={styles.page}>
+      <div className={styles.inner}>
+        {/* Hero section */}
+        <section className={styles.hero}>
+          <div className={styles.heroBadge}>
+            <span className={styles.heroDot} />
+            ダイエットを「見える化」して続けやすく
           </div>
-        </Link>
 
-        <Link href="/progress-diagnosis" style={tileStyle}>
-          <div style={tileTitleStyle}>ダイエット進捗診断</div>
-          <div style={tileDescStyle}>
-            開始日・体重・目標から、今の進み具合とペースを診断します。
-          </div>
-        </Link>
+          <h1 className={styles.title}>
+            自分のペースで続けられる
+            <br />
+            ダイエットサポートWebアプリ
+          </h1>
 
-        <Link href="/plan-creation" style={tileStyle}>
-          <div style={tileTitleStyle}>ダイエットプラン作成</div>
-          <div style={tileDescStyle}>
-            目標日と目標体重から、期間中の理想的な減量プランを作成します。
+          <p className={styles.subtitle}>
+            BMIチェック・進捗診断・プラン作成など、
+            今の状態と目標に合わせて「続けやすいダイエット」をサポートします。
+            まずは気になるツールから試してみましょう。
+          </p>
+
+          <div className={styles.heroActions}>
+            <Link href="/progress-diagnosis" className={styles.primaryButton}>
+              進捗を診断する
+              <span style={{ fontSize: "11px" }}>→</span>
+            </Link>
+            <Link href="/plan-creation" className={styles.secondaryLink}>
+              プランを立てる
+            </Link>
           </div>
-        </Link>
+        </section>
+
+        {/* Feature cards */}
+        <section>
+          <h2 className={styles.sectionHeader}>ツール一覧</h2>
+
+          <div className={styles.cards}>
+            {features.map((feature) => (
+              <Link
+                key={feature.href}
+                href={feature.href}
+                className={styles.card}
+              >
+                <div className={styles.cardHeader}>
+                  <h3 className={styles.cardTitle}>{feature.title}</h3>
+                  <span className={styles.cardBadge}>{feature.badge}</span>
+                </div>
+                <p className={styles.cardDescription}>{feature.desc}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
       </div>
     </main>
   );

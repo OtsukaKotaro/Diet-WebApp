@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { calculateBMI, judgeBMI } from "@/lib/bmi";
+import styles from "./page.module.css";
 
-export default function Page() {
+export default function BmiPage() {
   const [heightCm, setHeightCm] = useState<string>("");
   const [weightKg, setWeightKg] = useState<string>("");
   const [bmi, setBmi] = useState<number | null>(null);
@@ -45,85 +46,61 @@ export default function Page() {
     }
   };
 
-  const containerStyle: React.CSSProperties = {
-    padding: "1rem",
-    maxWidth: 480,
-    margin: "0 auto",
-  };
-
-  const labelStyle: React.CSSProperties = {
-    display: "grid",
-    gap: "0.25rem",
-    fontSize: "0.875rem",
-    fontWeight: 500,
-  };
-
-  const formStyle: React.CSSProperties = {
-    display: "grid",
-    gap: "0.75rem",
-    marginTop: "1rem",
-  };
-
-  const buttonStyle: React.CSSProperties = {
-    padding: "10px 16px",
-    cursor: "pointer",
-    backgroundColor: "#0070f3",
-    color: "#fff",
-    border: "none",
-    borderRadius: "4px",
-    marginTop: "8px",
-    justifySelf: "flex-start",
-  };
-
   return (
-    <main style={containerStyle}>
-      <h1 style={{ fontWeight: "bold", fontSize: "2rem" }}>BMI計算ツール</h1>
-
-      <form onSubmit={onCalculate} style={formStyle}>
-        <label style={labelStyle}>
-          <span>身長 (cm)</span>
-          <input
-            type="number"
-            inputMode="decimal"
-            step="0.1"
-            min="0"
-            value={heightCm}
-            onChange={(e) => setHeightCm(e.target.value)}
-            placeholder="例: 170"
-          />
-        </label>
-
-        <label style={labelStyle}>
-          <span>体重 (kg)</span>
-          <input
-            type="number"
-            inputMode="decimal"
-            step="0.1"
-            min="0"
-            value={weightKg}
-            onChange={(e) => setWeightKg(e.target.value)}
-            placeholder="例: 65"
-          />
-        </label>
-
-        <button type="submit" style={buttonStyle}>
-          計算する
-        </button>
-      </form>
-
-      {error && (
-        <p style={{ color: "red", marginTop: "0.75rem" }} role="alert">
-          {error}
+    <main className={styles.page}>
+      <div className={styles.inner}>
+        <h1 className={styles.title}>BMI計算ツール</h1>
+        <p className={styles.subtitle}>
+          身長と体重を入力して、現在のBMIと体型の目安を確認します。
         </p>
-      )}
 
-      {bmi !== null && !error && (
-        <section style={{ marginTop: "1rem" }}>
-          <h2>結果</h2>
-          <p>BMI: {bmi.toFixed(1)}</p>
-          <p>判定: {category}</p>
-        </section>
-      )}
+        <form onSubmit={onCalculate} className={styles.form}>
+          <label className={styles.label}>
+            <span>身長 (cm)</span>
+            <input
+              className={styles.input}
+              type="number"
+              inputMode="decimal"
+              step="0.1"
+              min="0"
+              value={heightCm}
+              onChange={(e) => setHeightCm(e.target.value)}
+              placeholder="例: 170"
+            />
+          </label>
+
+          <label className={styles.label}>
+            <span>体重 (kg)</span>
+            <input
+              className={styles.input}
+              type="number"
+              inputMode="decimal"
+              step="0.1"
+              min="0"
+              value={weightKg}
+              onChange={(e) => setWeightKg(e.target.value)}
+              placeholder="例: 65"
+            />
+          </label>
+
+          <button type="submit" className={styles.button}>
+            計算する
+          </button>
+        </form>
+
+        {error && (
+          <p className={styles.error} role="alert">
+            {error}
+          </p>
+        )}
+
+        {bmi !== null && !error && (
+          <section className={styles.result}>
+            <div className={styles.resultRow}>BMI: {bmi.toFixed(1)}</div>
+            <div className={styles.resultRow}>判定: {category}</div>
+          </section>
+        )}
+      </div>
     </main>
   );
 }
