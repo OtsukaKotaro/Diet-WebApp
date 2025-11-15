@@ -55,6 +55,8 @@ export default function Page() {
   const labelStyle: React.CSSProperties = {
     display: "grid",
     gap: "0.25rem",
+    fontSize: "0.875rem", // text-sm 相当
+    fontWeight: 500, // font-medium 相当
   };
 
   const formStyle: React.CSSProperties = {
@@ -76,7 +78,7 @@ export default function Page() {
 
   return (
     <main style={containerStyle}>
-      <h1 style={{ fontSize: "2rem" }}>BMI計算ツール</h1>
+      <h1 style={{ fontWeight: "bold", fontSize: "2rem" }}>BMI計算ツール</h1>
 
       <form onSubmit={onCalculate} style={formStyle}>
         <label style={labelStyle}>
@@ -133,4 +135,3 @@ export default function Page() {
     </main>
   );
 }
-

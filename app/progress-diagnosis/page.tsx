@@ -103,16 +103,17 @@ export default function ProgressDiagnosisPage() {
   };
 
   const containerStyle: React.CSSProperties = {
-    maxWidth: "600px",
+    maxWidth: 480,
     margin: "0 auto",
-    padding: "24px",
+    padding: "1rem",
     fontFamily: "sans-serif",
   };
 
   const labelStyle: React.CSSProperties = {
     display: "block",
-    marginBottom: "8px",
-    fontWeight: "bold",
+    marginBottom: "4px",
+    fontSize: "0.875rem",
+    fontWeight: 500,
   };
 
   const inputStyle: React.CSSProperties = {
@@ -147,7 +148,15 @@ export default function ProgressDiagnosisPage() {
 
   return (
     <div style={containerStyle}>
-      <h1 style = {{ fontSize: "2rem" }}>ダイエット進捗診断</h1>
+      <h1
+        style={{
+          fontWeight: "bold",
+          fontSize: "2rem",
+          marginBottom: "1rem",
+        }}
+      >
+        ダイエット進捗診断
+      </h1>
 
       <div>
         <label style={labelStyle} htmlFor="startDate">
@@ -171,6 +180,7 @@ export default function ProgressDiagnosisPage() {
           style={inputStyle}
           value={startWeight}
           onChange={(e) => setStartWeight(e.target.value)}
+          placeholder="例: 80"
         />
 
         <label style={labelStyle} htmlFor="targetDate">
@@ -194,6 +204,7 @@ export default function ProgressDiagnosisPage() {
           style={inputStyle}
           value={goalWeight}
           onChange={(e) => setGoalWeight(e.target.value)}
+          placeholder="例: 70"
         />
 
         <label style={labelStyle} htmlFor="currentWeight">
@@ -205,6 +216,7 @@ export default function ProgressDiagnosisPage() {
           style={inputStyle}
           value={currentWeight}
           onChange={(e) => setCurrentWeight(e.target.value)}
+          placeholder="例: 75"
         />
 
         <button type="button" style={buttonStyle} onClick={handleDiagnosis}>
@@ -243,14 +255,11 @@ export default function ProgressDiagnosisPage() {
 
       <Link
         href="/"
-        style={{
-          display: "inline-block",
-          marginTop: "1rem",
-          color: "blue",
-        }}
+        style={{ display: "inline-block", marginTop: "1rem", color: "blue" }}
       >
-        ←トップページへ
+        トップページへ
       </Link>
     </div>
   );
 }
+

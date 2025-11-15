@@ -91,8 +91,14 @@
       setPlan(planArr);
     };
 
+    const containerStyle: React.CSSProperties = {
+      padding: "1rem",
+      maxWidth: 480,
+      margin: "0 auto",
+    };
+
     return (
-      <main className="p-4">
+      <main className="p-4" style={containerStyle}>
         <h1 className="text-xl font-bold mb-4"  style = {{ fontSize: "2rem" }}>ダイエットプラン作成</h1>
 
         <form
@@ -124,6 +130,7 @@
               value={startWeight}
               onChange={(e) => setStartWeight(e.target.value)}
               className="border px-2 py-1 rounded w-full"
+              placeholder="例: 80"
             />
           </div>
 
@@ -149,6 +156,7 @@
               value={goalWeight}
               onChange={(e) => setGoalWeight(e.target.value)}
               className="border px-2 py-1 rounded w-full"
+              placeholder="例: 70"
             />
           </div>
 
@@ -161,6 +169,7 @@
               value={intervalDays}
               onChange={(e) => setIntervalDays(e.target.value)}
               className="border px-2 py-1 rounded w-full"
+              placeholder="例: 3"
             />
           </div>
 
