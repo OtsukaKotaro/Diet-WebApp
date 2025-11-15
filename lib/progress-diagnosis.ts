@@ -33,20 +33,35 @@ export function calTotalChange(startWeight: number | string, goalWeight: number 
     return progress;
   }
 
-  export function calDaysElapsed( startDate: number | string ): number {
-    const sDateTime = new Date( startDate ).getTime();
-    const todayTime = Date.now();
+  export function calDaysElapsed( startDate: string ): number {
+    // 開始日と今日の「日付」だけを比較する（タイムゾーンの影響を避ける）
+    const startLocal = new Date(`${startDate}T00:00:00`);
+    const now = new Date();
+    const todayLocal = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
 
-    const daysElapsed = Math.floor(( todayTime - sDateTime ) / Ms_per_Day );
+    const daysElapsed = Math.floor(
+      (todayLocal.getTime() - startLocal.getTime()) / Ms_per_Day
+    );
 
     return daysElapsed;
   }
 
   export function calRemainingDays( targetDate: string ): number {
-    const tDateTime = new Date(targetDate).getTime();
-    const todayTime = Date.now();
+    const targetLocal = new Date(`${targetDate}T00:00:00`);
+    const now = new Date();
+    const todayLocal = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
 
-    const remainingDays = Math.ceil(( tDateTime - todayTime ) / Ms_per_Day );
+    const remainingDays = Math.ceil(
+      (targetLocal.getTime() - todayLocal.getTime()) / Ms_per_Day
+    );
 
     return remainingDays;
   }
@@ -64,12 +79,24 @@ export function calTotalChange(startWeight: number | string, goalWeight: number 
     const tDateTime = new Date(targetDate).getTime();
     const sDateTime = new Date(startDate).getTime();
 
+    if (!Number.isFinite(tDateTime) || !Number.isFinite(sDateTime)) {
+      throw new Error("日付の形式が正しくありません。開始日と目標日を確認してください。");
+    }
+
+    if (tDateTime <= sDateTime) {
+      throw new Error("目標日は開始日より後の日付を設定してください。");
+    }
+
     const idealDailyChange = totalChange / (( tDateTime - sDateTime ) / Ms_per_Day);
 
     return idealDailyChange;
   }
 
   export function calRealDailyChange( currentChange: number, daysElapsed: number ): number {
+    if (daysElapsed <= 0) {
+      return 0;
+    }
+
     const realDailyChange = currentChange / daysElapsed;
 
     return realDailyChange;

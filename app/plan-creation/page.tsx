@@ -93,7 +93,7 @@
 
     return (
       <main className="p-4">
-        <h1 className="text-xl font-bold mb-4">ダイエットプラン作成</h1>
+        <h1 className="text-xl font-bold mb-4"  style = {{ fontSize: "2rem" }}>ダイエットプラン作成</h1>
 
         <form
           className="space-y-4"
@@ -108,6 +108,7 @@
             </label>
             <input
               type="date"
+              required
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               className="border px-2 py-1 rounded w-full"
@@ -132,6 +133,7 @@
             </label>
             <input
               type="date"
+              required
               value={targetDate}
               onChange={(e) => setTargetDate(e.target.value)}
               className="border px-2 py-1 rounded w-full"
@@ -229,7 +231,7 @@
           )}
         </section>
         <Link href = "/" style = {{ display: "inline-block", marginTop: "1rem", color: "blue" }}>
-            ← トップページへ
+            ←トップページへ
         </Link>
       </main>   
     );
