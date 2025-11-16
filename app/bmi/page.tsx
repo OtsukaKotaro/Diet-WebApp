@@ -5,15 +5,15 @@ import { calculateBMI, judgeBMI } from "@/lib/bmi";
 import styles from "./page.module.css";
 
 export default function BmiPage() {
-  const [heightCm, setHeightCm] = useState<string>("");
-  const [weightKg, setWeightKg] = useState<string>("");
+  const [heightCm, setHeightCm] = useState("");
+  const [weightKg, setWeightKg] = useState("");
   const [bmi, setBmi] = useState<number | null>(null);
-  const [category, setCategory] = useState<string>("");
-  const [error, setError] = useState<string>("");
+  const [category, setCategory] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   const onCalculate = (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError(null);
     setBmi(null);
     setCategory("");
 
@@ -88,18 +88,28 @@ export default function BmiPage() {
           </button>
         </form>
 
-        {error && (
-          <p className={styles.error} role="alert">
-            {error}
-          </p>
-        )}
+        <section className={styles.resultSection}>
+          <h2 className={styles.resultTitle}>計算結果</h2>
 
-        {bmi !== null && !error && (
-          <section className={styles.result}>
-            <div className={styles.resultRow}>BMI: {bmi.toFixed(1)}</div>
-            <div className={styles.resultRow}>判定: {category}</div>
-          </section>
-        )}
+          {error && (
+            <p className={styles.error} role="alert">
+              {error}
+            </p>
+          )}
+
+          {!error && bmi === null && (
+            <p className={styles.resultText}>
+              必要な項目を入力し、「計算する」を押してください。
+            </p>
+          )}
+
+          {bmi !== null && !error && (
+            <>
+              <p className={styles.resultText}>BMI: {bmi.toFixed(1)}</p>
+              <p className={styles.resultText}>判定: {category}</p>
+            </>
+          )}
+        </section>
       </div>
     </main>
   );

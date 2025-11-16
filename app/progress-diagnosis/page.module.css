@@ -83,6 +83,17 @@
   font-size: 0.9rem;
 }
 
+.resultSection {
+  margin-top: 20px;
+}
+
+.resultTitle {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #0f172a;
+}
+
 .result {
   margin-top: 20px;
   padding: 14px 12px 12px;
@@ -106,9 +117,14 @@
   font-weight: 500;
 }
 
+.resultText {
+  font-size: 0.95rem;
+  margin: 2px 0;
+  color: #111827;
+}
+
 @media (min-width: 640px) {
   .title {
     font-size: 30px;
   }
 }
-

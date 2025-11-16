@@ -50,3 +50,47 @@
   background-color: #bfdbfe;
 }
 
+.spacer {
+  flex: 1;
+}
+
+.userArea {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  font-size: 0.8rem;
+}
+
+.userEmail {
+  color: #6b7280;
+}
+
+.authButton {
+  padding: 6px 12px;
+  border-radius: 9999px;
+  border: none;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.loginLink {
+  background-color: #1d4ed8;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.loginLink:hover {
+  background-color: #1e40af;
+}
+
+.logoutButton {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.logoutButton:hover {
+  background-color: #e5e7eb;
+}
+

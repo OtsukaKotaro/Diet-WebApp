@@ -1,0 +1,58 @@
+.page {
+  min-height: 100vh;
+  padding: 40px 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.inner {
+  width: 100%;
+  max-width: 420px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  padding: 24px 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  color: #0f172a;
+}
+
+.message {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.status {
+  font-size: 0.9rem;
+}
+
+.success {
+  color: #16a34a;
+}
+
+.error {
+  color: #dc2626;
+}
+
+.linkButton {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  border: 1px solid #bfdbfe;
+  background-color: #ffffff;
+  color: #1d4ed8;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+

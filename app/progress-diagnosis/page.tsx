@@ -62,19 +62,19 @@ export default function ProgressDiagnosisPage() {
       const idealDailyChange = calIdealDailyChange(
         totalChange,
         targetDate,
-        startDate
+        startDate,
       );
       const realDailyChange = calRealDailyChange(currentChange, daysElapsed);
       const neededDailyChange = calNeededDailyChange(
         remainingChange,
-        remainingDays
+        remainingDays,
       );
 
       let achievementDate = "";
       if (realDailyChange > 0 && remainingChange > 0) {
         const achievementDateObj = calAchievementDate(
           remainingChange,
-          realDailyChange
+          realDailyChange,
         );
         if (!Number.isNaN(achievementDateObj.getTime())) {
           achievementDate = achievementDateObj.toISOString().slice(0, 10);
@@ -97,7 +97,9 @@ export default function ProgressDiagnosisPage() {
       if (e instanceof Error) {
         setError(e.message);
       } else {
-        setError("診断中にエラーが発生しました。入力値を確認してください。");
+        setError(
+          "診断中にエラーが発生しました。入力値を確認してください。",
+        );
       }
     }
   };
@@ -107,7 +109,7 @@ export default function ProgressDiagnosisPage() {
       <div className={styles.inner}>
         <h1 className={styles.title}>ダイエット進捗診断</h1>
         <p className={styles.subtitle}>
-          ダイエット開始日・現在体重・目標体重を入力して、進捗率やペースを診断します。
+          ダイエット開始日・現在体重・目標体重を入力して、進捗率とペースを診断します。
         </p>
 
         <div className={styles.form}>
@@ -190,74 +192,84 @@ export default function ProgressDiagnosisPage() {
           </button>
         </div>
 
-        {error && <div className={styles.error}>{error}</div>}
+        <section className={styles.resultSection}>
+          <h2 className={styles.resultTitle}>診断結果</h2>
 
-        {result && (
-          <div className={styles.result}>
-            <div className={styles.resultRow}>
-              <span className={styles.resultKey}>目標減量</span>
-              <span className={styles.resultValue}>
-                {result.totalChange.toFixed(1)} kg
-              </span>
+          {error && <div className={styles.error}>{error}</div>}
+
+          {!error && !result && (
+            <p className={styles.resultText}>
+              必要な項目を入力し、「診断する」を押してください。
+            </p>
+          )}
+
+          {result && (
+            <div className={styles.result}>
+              <div className={styles.resultRow}>
+                <span className={styles.resultKey}>目標減量</span>
+                <span className={styles.resultValue}>
+                  {result.totalChange.toFixed(1)} kg
+                </span>
+              </div>
+              <div className={styles.resultRow}>
+                <span className={styles.resultKey}>暫定減量</span>
+                <span className={styles.resultValue}>
+                  {result.currentChange.toFixed(1)} kg
+                </span>
+              </div>
+              <div className={styles.resultRow}>
+                <span className={styles.resultKey}>進捗率</span>
+                <span className={styles.resultValue}>
+                  {result.progress.toFixed(1)} %
+                </span>
+              </div>
+              <div className={styles.resultRow}>
+                <span className={styles.resultKey}>経過日数</span>
+                <span className={styles.resultValue}>
+                  {result.daysElapsed.toFixed(1)} 日
+                </span>
+              </div>
+              <div className={styles.resultRow}>
+                <span className={styles.resultKey}>残り日数</span>
+                <span className={styles.resultValue}>
+                  {result.remainingDays.toFixed(1)} 日
+                </span>
+              </div>
+              <div className={styles.resultRow}>
+                <span className={styles.resultKey}>残り減量</span>
+                <span className={styles.resultValue}>
+                  {result.remainingChange.toFixed(1)} kg
+                </span>
+              </div>
+              <div className={styles.resultRow}>
+                <span className={styles.resultKey}>理想のペース</span>
+                <span className={styles.resultValue}>
+                  {result.idealDailyChange.toFixed(3)} kg/日
+                </span>
+              </div>
+              <div className={styles.resultRow}>
+                <span className={styles.resultKey}>現在のペース</span>
+                <span className={styles.resultValue}>
+                  {result.realDailyChange.toFixed(3)} kg/日
+                </span>
+              </div>
+              <div className={styles.resultRow}>
+                <span className={styles.resultKey}>達成予定日</span>
+                <span className={styles.resultValue}>
+                  {result.achievementDate
+                    ? `${result.achievementDate} 頃`
+                    : "このままでは達成が難しいです"}
+                </span>
+              </div>
+              <div className={styles.resultRow}>
+                <span className={styles.resultKey}>必要なペース</span>
+                <span className={styles.resultValue}>
+                  {result.neededDailyChange.toFixed(3)} kg/日
+                </span>
+              </div>
             </div>
-            <div className={styles.resultRow}>
-              <span className={styles.resultKey}>暫定減量</span>
-              <span className={styles.resultValue}>
-                {result.currentChange.toFixed(1)} kg
-              </span>
-            </div>
-            <div className={styles.resultRow}>
-              <span className={styles.resultKey}>進捗率</span>
-              <span className={styles.resultValue}>
-                {result.progress.toFixed(1)} %
-              </span>
-            </div>
-            <div className={styles.resultRow}>
-              <span className={styles.resultKey}>経過日数</span>
-              <span className={styles.resultValue}>
-                {result.daysElapsed.toFixed(1)} 日
-              </span>
-            </div>
-            <div className={styles.resultRow}>
-              <span className={styles.resultKey}>残り日数</span>
-              <span className={styles.resultValue}>
-                {result.remainingDays.toFixed(1)} 日
-              </span>
-            </div>
-            <div className={styles.resultRow}>
-              <span className={styles.resultKey}>残り減量</span>
-              <span className={styles.resultValue}>
-                {result.remainingChange.toFixed(1)} kg
-              </span>
-            </div>
-            <div className={styles.resultRow}>
-              <span className={styles.resultKey}>理想のペース</span>
-              <span className={styles.resultValue}>
-                {result.idealDailyChange.toFixed(3)} kg/日
-              </span>
-            </div>
-            <div className={styles.resultRow}>
-              <span className={styles.resultKey}>現在のペース</span>
-              <span className={styles.resultValue}>
-                {result.realDailyChange.toFixed(3)} kg/日
-              </span>
-            </div>
-            <div className={styles.resultRow}>
-              <span className={styles.resultKey}>達成予定日</span>
-              <span className={styles.resultValue}>
-                {result.achievementDate
-                  ? `${result.achievementDate} 頃`
-                  : "このままでは達成が難しいです"}
-              </span>
-            </div>
-            <div className={styles.resultRow}>
-              <span className={styles.resultKey}>必要なペース</span>
-              <span className={styles.resultValue}>
-                {result.neededDailyChange.toFixed(3)} kg/日
-              </span>
-            </div>
-          </div>
-        )}
+          )}
+        </section>
       </div>
     </main>
   );
