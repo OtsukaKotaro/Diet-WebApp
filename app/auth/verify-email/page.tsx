@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import styles from "./page.module.css";
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
     "idle",
@@ -16,7 +16,9 @@ export default function VerifyEmailPage() {
     const token = searchParams.get("token") ?? "";
     if (!token) {
       setStatus("error");
-      setMessage("トークンが見つかりません。メール内のリンクをもう一度ご確認ください。");
+      setMessage(
+        "トークンが見つかりません。メール内のリンクをもう一度ご確認ください。",
+      );
       return;
     }
 
@@ -35,7 +37,9 @@ export default function VerifyEmailPage() {
         }
 
         setStatus("success");
-        setMessage("メールアドレスの確認が完了しました。ログインして記録を始めましょう。");
+        setMessage(
+          "メールアドレスの確認が完了しました。ログインして記録を始めましょう。",
+        );
       } catch {
         setStatus("error");
         setMessage(
@@ -78,3 +82,21 @@ export default function VerifyEmailPage() {
     </div>
   );
 }
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className={styles.page}>
+          <div className={styles.inner}>
+            <h1 className={styles.title}>メールアドレスの確認</h1>
+            <p className={styles.message}>読み込み中です…</p>
+          </div>
+        </div>
+      }
+    >
+      <VerifyEmailContent />
+    </Suspense>
+  );
+}
+
