@@ -37,7 +37,7 @@ export async function verifyAuthToken(token: string): Promise<JWTPayload | null>
 }
 
 export async function getCurrentUser(request: NextRequest) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const token = cookieStore.get(JWT_COOKIE_NAME)?.value;
 
   if (!token) return null;
@@ -53,4 +53,3 @@ export async function getCurrentUser(request: NextRequest) {
 }
 
 export { JWT_COOKIE_NAME };
-

@@ -3,33 +3,44 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { Mood } from "@prisma/client";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } },
-) {
+type RouteContext = {
+  params: Promise<{ id: string }>;
+};
+
+export async function GET(request: NextRequest, context: RouteContext) {
+  const { id } = await context.params;
+
   const user = await getCurrentUser(request);
   if (!user) {
-    return NextResponse.json({ error: "認証が必要です。" }, { status: 401 });
+    return NextResponse.json(
+      { error: "認証が必要です。" },
+      { status: 401 },
+    );
   }
 
   const record = await prisma.dietRecord.findFirst({
-    where: { id: params.id, userId: user.id },
+    where: { id, userId: user.id },
   });
 
   if (!record) {
-    return NextResponse.json({ error: "記録が見つかりません。" }, { status: 404 });
+    return NextResponse.json(
+      { error: "記録が見つかりません。" },
+      { status: 404 },
+    );
   }
 
   return NextResponse.json({ record });
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } },
-) {
+export async function PATCH(request: NextRequest, context: RouteContext) {
+  const { id } = await context.params;
+
   const user = await getCurrentUser(request);
   if (!user) {
-    return NextResponse.json({ error: "認証が必要です。" }, { status: 401 });
+    return NextResponse.json(
+      { error: "認証が必要です。" },
+      { status: 401 },
+    );
   }
 
   try {
@@ -69,17 +80,21 @@ export async function PATCH(
       updateData.photoUrl = data.photoUrl;
     }
 
-    const record = await prisma.dietRecord.update({
-      where: { id: params.id },
-      data: updateData,
+    const existing = await prisma.dietRecord.findFirst({
+      where: { id, userId: user.id },
     });
 
-    if (record.userId !== user.id) {
+    if (!existing) {
       return NextResponse.json(
         { error: "この記録を編集する権限がありません。" },
         { status: 403 },
       );
     }
+
+    const record = await prisma.dietRecord.update({
+      where: { id },
+      data: updateData,
+    });
 
     return NextResponse.json({ record });
   } catch (error) {
@@ -91,18 +106,20 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } },
-) {
+export async function DELETE(request: NextRequest, context: RouteContext) {
+  const { id } = await context.params;
+
   const user = await getCurrentUser(request);
   if (!user) {
-    return NextResponse.json({ error: "認証が必要です。" }, { status: 401 });
+    return NextResponse.json(
+      { error: "認証が必要です。" },
+      { status: 401 },
+    );
   }
 
   try {
     const record = await prisma.dietRecord.findFirst({
-      where: { id: params.id, userId: user.id },
+      where: { id, userId: user.id },
     });
 
     if (!record) {

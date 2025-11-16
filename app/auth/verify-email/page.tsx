@@ -13,7 +13,7 @@ export default function VerifyEmailPage() {
   const [message, setMessage] = useState<string>("");
 
   useEffect(() => {
-    const token = searchParams.get("token");
+    const token = searchParams.get("token") ?? "";
     if (!token) {
       setStatus("error");
       setMessage("トークンが見つかりません。メール内のリンクをもう一度ご確認ください。");
@@ -78,4 +78,3 @@ export default function VerifyEmailPage() {
     </div>
   );
 }
-
