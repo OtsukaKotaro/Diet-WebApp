@@ -240,6 +240,15 @@
   color: #0f172a;
 }
 
+.galleryTitle a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.galleryTitle a:hover {
+  text-decoration: underline;
+}
+
 .galleryGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));

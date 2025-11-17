@@ -401,48 +401,14 @@ export default function DietRecordsPage() {
         </section>
 
         <section className={styles.gallerySection}>
-          <h2 className={styles.galleryTitle}>マイギャラリー（写真）</h2>
+          <h2 className={styles.galleryTitle}>
+            <Link href="/diet-records/gallery">マイギャラリー &gt;</Link>
+          </h2>
 
           {galleryRecords.length === 0 && (
             <p className={styles.infoText}>
-              写真付きの記録はまだありません。写真を登録すると、ここに一覧表示されます。
+              写真付きの記録はまだありません。写真を登録すると、マイギャラリーで一覧できます。
             </p>
-          )}
-
-          {galleryRecords.length > 0 && (
-            <div className={styles.galleryGrid}>
-              {galleryRecords.map((record) => (
-                <div key={record.id} className={styles.galleryItem}>
-                  {record.photoUrl && (
-                    <img
-                      src={record.photoUrl}
-                      alt="ダイエット記録の写真"
-                      className={styles.galleryImage}
-                    />
-                  )}
-                  <div className={styles.galleryMeta}>
-                    <div className={styles.galleryMetaMain}>
-                      <span>
-                        {new Date(record.date).toLocaleDateString("ja-JP", {
-                          year: "numeric",
-                          month: "2-digit",
-                          day: "2-digit",
-                        })}
-                      </span>
-                      <span>{record.weightKg.toFixed(1)}kg</span>
-                    </div>
-                    <div className={styles.galleryTags}>
-                      <span className={styles.tag}>
-                        気分: {formatMoodLabel(record.mood)}
-                      </span>
-                    </div>
-                    {record.note && (
-                      <p className={styles.galleryNote}>{record.note}</p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
           )}
         </section>
       </div>
@@ -469,4 +435,3 @@ export default function DietRecordsPage() {
     </main>
   );
 }
-
