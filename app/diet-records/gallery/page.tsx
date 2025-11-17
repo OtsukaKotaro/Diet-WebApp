@@ -61,7 +61,12 @@ export default function GalleryPage() {
 
         const data = await response.json();
         const allRecords: DietRecord[] = data.records ?? [];
-        const photos = allRecords.filter((r) => r.photoUrl);
+        const photos = allRecords
+          .filter((r) => r.photoUrl)
+          .sort(
+            (a, b) =>
+              new Date(b.date).getTime() - new Date(a.date).getTime(),
+          );
         setRecords(photos);
       } catch {
         setError("写真の取得中にエラーが発生しました。");
@@ -123,7 +128,7 @@ export default function GalleryPage() {
                   <img
                     src={record.photoUrl}
                     alt="ダイエット記録の写真"
-                    className={styles.galleryImage}
+                    className={styles.galleryThumb}
                   />
                 )}
               </button>
