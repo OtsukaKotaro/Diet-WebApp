@@ -41,7 +41,6 @@ export default function LoginPage() {
         return;
       }
 
-      // ログイン成功時はトップページへ遷移
       router.push("/");
       router.refresh();
     } catch {
@@ -94,7 +93,13 @@ export default function LoginPage() {
         </form>
 
         <p className={styles.linkRow}>
-          アカウントをお持ちでない場合は{" "}
+          <Link href="/auth/forgot-password" className={styles.link}>
+            パスワードをお忘れの方はこちら
+          </Link>
+        </p>
+
+        <p className={styles.linkRow}>
+          アカウントをお持ちでない場合{" "}
           <Link href="/auth/register" className={styles.link}>
             新規登録
           </Link>

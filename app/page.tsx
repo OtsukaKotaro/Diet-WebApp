@@ -41,7 +41,7 @@ const features: Feature[] = [
   {
     href: "/diet-records",
     title: "ダイエット記録",
-    desc: "日付と体重を記録して、日々の変化を振り返れます。",
+    desc: "日付と体重、気分やメモ、写真を記録して、日々の変化を振り返れます。",
     badge: "記録",
     requiresAuth: true,
   },
@@ -103,9 +103,17 @@ export default function HomePage() {
 
           <p className={styles.subtitle}>
             {
-              "BMIチェック・進捗診断・プラン作成など、今の状態と目標に合わせて「続けやすいダイエット」をサポートします。まずは気になるツールから試してみましょう。"
+              "BMIチェッカー・進捗診断・プラン作成など、今の状態と目標に合わせて「続けやすいダイエット」をサポートします。まずは気になるツールから試してみましょう。"
             }
           </p>
+
+          {!user && (
+            <div className={styles.heroActions}>
+              <Link href="/auth/login" className={styles.primaryButton}>
+                ログインして使ってみる
+              </Link>
+            </div>
+          )}
         </section>
 
         <section>

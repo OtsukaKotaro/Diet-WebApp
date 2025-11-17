@@ -180,11 +180,15 @@ export default function DietRecordsCalendarPage() {
     });
   }
 
-  function openSheetForDate(d: Date) {
+  function handleDayClick(d: Date) {
     const key = getDateKey(d);
-    const existing = recordsByDate[key] ?? null;
     setSelectedDate(key);
-    setDate(key);
+  }
+
+  function openSheetForSelectedDate() {
+    if (!selectedDate) return;
+    const existing = recordsByDate[selectedDate] ?? null;
+    setDate(selectedDate);
     if (existing) {
       setWeightKg(existing.weightKg.toString());
       setMood(existing.mood);
@@ -386,7 +390,7 @@ export default function DietRecordsCalendarPage() {
                     className={`${styles.calendarCell} ${
                       hasRecord ? styles.calendarCellHasRecord : ""
                     } ${isSelected ? styles.calendarCellSelected : ""}`}
-                    onClick={() => openSheetForDate(d)}
+                    onClick={() => handleDayClick(d)}
                   >
                     <span>{d.getDate()}</span>
                     {hasRecord && <span className={styles.calendarDot} />}
@@ -396,6 +400,43 @@ export default function DietRecordsCalendarPage() {
             </div>
           </div>
         </section>
+
+        {selectedDate && (
+          <section className={styles.listSection}>
+            <h2 className={styles.listTitle}>
+              {selectedDate} の記録
+            </h2>
+            {selectedRecord ? (
+              <>
+                <p className={styles.infoText}>
+                  体重: {selectedRecord.weightKg.toFixed(1)} kg / 気分:{" "}
+                  {formatMoodLabel(selectedRecord.mood)}
+                </p>
+                {selectedRecord.note && (
+                  <p className={styles.infoText}>メモ: {selectedRecord.note}</p>
+                )}
+                <button
+                  type="button"
+                  className={styles.button}
+                  onClick={openSheetForSelectedDate}
+                >
+                  この日の記録を編集する
+                </button>
+              </>
+            ) : (
+              <>
+                <p className={styles.infoText}>まだ記録がありません。</p>
+                <button
+                  type="button"
+                  className={styles.button}
+                  onClick={openSheetForSelectedDate}
+                >
+                  この日の記録を登録する
+                </button>
+              </>
+            )}
+          </section>
+        )}
 
         <section className={styles.gallerySection}>
           <h2 className={styles.galleryTitle}>
