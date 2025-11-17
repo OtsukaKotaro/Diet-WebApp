@@ -32,6 +32,23 @@ function formatMoodLabel(mood: MoodValue): string {
   }
 }
 
+function formatMoodEmoji(mood: MoodValue): string {
+  switch (mood) {
+    case "BEST":
+      return "😆";
+    case "GOOD":
+      return "🙂";
+    case "NORMAL":
+      return "😐";
+    case "BAD":
+      return "☹️";
+    case "WORST":
+      return "😣";
+    default:
+      return "";
+  }
+}
+
 export default function GalleryPage() {
   const [records, setRecords] = useState<DietRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -156,7 +173,11 @@ export default function GalleryPage() {
               </div>
               <div className={styles.galleryTags}>
                 <span className={styles.tag}>
-                  気分: {formatMoodLabel(activeRecord.mood)}
+                  気分:{" "}
+                  <span className={styles.moodEmoji}>
+                    {formatMoodEmoji(activeRecord.mood)}
+                  </span>{" "}
+                  {formatMoodLabel(activeRecord.mood)}
                 </span>
               </div>
               {activeRecord.note && (
@@ -176,3 +197,4 @@ export default function GalleryPage() {
     </main>
   );
 }
+

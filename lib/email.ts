@@ -18,7 +18,7 @@ export async function sendVerificationEmail(to: string, token: string) {
   await resend.emails.send({
     from: "onboarding@resend.dev",
     to,
-    subject: "メールアドレスの確認",
+    subject: "メールアドレスの確認<ダイエットサポート>",
     text: `以下のリンクをクリックしてメールアドレスを確認してください。\n\n${verifyUrl}\n\nこのリンクは24時間で有効期限が切れます。`,
   });
 }
@@ -36,7 +36,7 @@ export async function sendPasswordResetEmail(to: string, token: string) {
   await resend.emails.send({
     from: "onboarding@resend.dev",
     to,
-    subject: "パスワード再設定のご案内",
+    subject: "パスワード再設定のご案内<ダイエットサポート>",
     text: `以下のリンクからパスワードを再設定してください。\n\n${resetUrl}\n\nこのリンクは1時間で有効期限が切れます。`,
   });
 }
