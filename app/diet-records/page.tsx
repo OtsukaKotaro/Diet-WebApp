@@ -1,7 +1,7 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
-import type { MouseEvent } from "react";
+import type { FormEvent, MouseEvent } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import styles from "./page.module.css";
 
@@ -32,6 +32,53 @@ function formatMoodLabel(mood: MoodValue): string {
 function getNotePreview(note: string): string {
   if (note.length <= 5) return note;
   return `${note.slice(0, 5)}...`;
+}
+
+async function resizeImageToDataUrl(file: File): Promise<string | null> {
+  if (!file.type.startsWith("image/")) {
+    return null;
+  }
+
+  const dataUrl: string = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") resolve(reader.result);
+      else reject(new Error("画像の読み込みに失敗しました。"));
+    };
+    reader.onerror = () => reject(reader.error ?? new Error("画像の読み込みに失敗しました。"));
+    reader.readAsDataURL(file);
+  });
+
+  const image: HTMLImageElement = await new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("画像の読み込みに失敗しました。"));
+    img.src = dataUrl;
+  });
+
+  const maxSize = 1024; // 長辺 1024px までに縮小
+  let { width, height } = image;
+
+  if (width <= maxSize && height <= maxSize) {
+    // すでに小さければそのまま
+    return dataUrl;
+  }
+
+  const scale = Math.min(maxSize / width, maxSize / height);
+  width = Math.round(width * scale);
+  height = Math.round(height * scale);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+
+  ctx.drawImage(image, 0, 0, width, height);
+
+  // JPEG で少し圧縮して出力
+  const compressed = canvas.toDataURL("image/jpeg", 0.8);
+  return compressed;
 }
 
 export default function DietRecordsPage() {
@@ -105,13 +152,16 @@ export default function DietRecordsPage() {
     let photoData: string | null = null;
 
     if (photoFile) {
-      photoData = await new Promise<string | null>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () =>
-          resolve(typeof reader.result === "string" ? reader.result : null);
-        reader.onerror = () => reject(reader.error);
-        reader.readAsDataURL(photoFile);
-      });
+      try {
+        photoData = await resizeImageToDataUrl(photoFile);
+        if (!photoData) {
+          setError("画像の処理に失敗しました。別の画像をお試しください。");
+          return;
+        }
+      } catch {
+        setError("画像の処理に失敗しました。別の画像をお試しください。");
+        return;
+      }
     }
 
     setSubmitting(true);
@@ -149,6 +199,8 @@ export default function DietRecordsPage() {
         const others = prev.filter((r) => r.id !== record.id);
         return [record, ...others].sort((a, b) => (a.date < b.date ? 1 : -1));
       });
+
+      // 送信後も同じ写真を再利用できるよう、photoFile はそのまま
     } catch {
       setError("記録の保存中にエラーが発生しました。");
     } finally {
@@ -417,3 +469,4 @@ export default function DietRecordsPage() {
     </main>
   );
 }
+
