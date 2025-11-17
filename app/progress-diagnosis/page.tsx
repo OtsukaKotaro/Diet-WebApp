@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   calTotalChange,
   calCurrentChange,
@@ -132,6 +132,38 @@ export default function ProgressDiagnosisPage() {
     null,
   );
   const [showDetails, setShowDetails] = useState(false);
+
+  useEffect(() => {
+    async function loadProfileDefaults() {
+      try {
+        const response = await fetch("/api/user/profile", {
+          method: "GET",
+          credentials: "include",
+        });
+        if (!response.ok) return;
+        const data = await response.json();
+
+        if (!startDate && data.startDate) {
+          setStartDate(data.startDate);
+        }
+        if (!startWeight && typeof data.startWeightKg === "number") {
+          setStartWeight(String(data.startWeightKg));
+        }
+        if (!goalWeight && typeof data.goalWeightKg === "number") {
+          setGoalWeight(String(data.goalWeightKg));
+        }
+        if (!targetDate && data.targetDate) {
+          setTargetDate(data.targetDate);
+        }
+      } catch {
+        // プロフィール取得に失敗しても黙ってスキップ
+      }
+    }
+
+    void loadProfileDefaults();
+    // 初期マウント時だけ試みる
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleDiagnosis = () => {
     setError(null);
@@ -387,4 +419,3 @@ export default function ProgressDiagnosisPage() {
     </main>
   );
 }
-

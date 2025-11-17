@@ -24,6 +24,7 @@ const LINKS: NavLink[] = [
   { href: "/plan-creation", label: "プラン作成" },
   { href: "/diet-records", label: "ダイエット記録", requiresAuth: true },
   { href: "/diet-records/calendar", label: "カレンダー表示", requiresAuth: true },
+  { href: "/diet-records/graph", label: "グラフ表示", requiresAuth: true },
   { href: "/diet-records/gallery", label: "マイギャラリー", requiresAuth: true },
 ];
 

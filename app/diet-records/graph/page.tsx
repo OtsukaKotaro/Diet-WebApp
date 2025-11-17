@@ -1,6 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import styles from "../page.module.css";
 
 type MoodValue = "BEST" | "GOOD" | "NORMAL" | "BAD" | "WORST";
@@ -27,16 +36,6 @@ const RANGE_OPTIONS: RangeOption[] = [
   { key: "all", label: "全期間" },
 ];
 
-function toDateKey(value: string | Date): string {
-  const d = typeof value === "string" ? new Date(value) : value;
-  const year = d.getFullYear();
-  const month = d.getMonth() + 1;
-  const day = d.getDate();
-  const mm = month.toString().padStart(2, "0");
-  const dd = day.toString().padStart(2, "0");
-  return `${year}-${mm}-${dd}`;
-}
-
 function parseDate(value: string): Date {
   return new Date(value);
 }
@@ -50,16 +49,26 @@ function filterByRange(records: DietRecord[], range: RangeKey): DietRecord[] {
   let from: Date;
 
   if (range === "1m") {
-    from = new Date(now);
-    from.setMonth(now.getMonth() - 1);
+    from = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
   } else {
-    // "1y"
-    from = new Date(now);
-    from.setFullYear(now.getFullYear() - 1);
+    from = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
   }
 
   return records.filter((r) => parseDate(r.date) >= from);
 }
+
+function formatDateLabel(dateStr: string): string {
+  const d = parseDate(dateStr);
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+  return `${m}/${day}`;
+}
+
+type ChartPoint = {
+  date: string;
+  dateLabel: string;
+  weightKg: number;
+};
 
 export default function DietRecordsGraphPage() {
   const [records, setRecords] = useState<DietRecord[]>([]);
@@ -100,6 +109,15 @@ export default function DietRecordsGraphPage() {
     void fetchRecords();
   }, []);
 
+  const chartData: ChartPoint[] = useMemo(() => {
+    const filtered = filterByRange(records, range);
+    return filtered.map((r) => ({
+      date: r.date,
+      dateLabel: formatDateLabel(r.date),
+      weightKg: r.weightKg,
+    }));
+  }, [records, range]);
+
   if (requiresLogin) {
     return (
       <main className={styles.page}>
@@ -112,35 +130,6 @@ export default function DietRecordsGraphPage() {
       </main>
     );
   }
-
-  const filtered = filterByRange(records, range);
-
-  // グラフ描画用のデータ整形
-  const graphPoints = (() => {
-    if (filtered.length === 0) return [];
-
-    const weights = filtered.map((r) => r.weightKg);
-    let minW = Math.min(...weights);
-    let maxW = Math.max(...weights);
-
-    // すべて同じ体重のときに少し余白をつける
-    if (minW === maxW) {
-      minW -= 1;
-      maxW += 1;
-    }
-
-    const width = 300;
-    const height = 160;
-
-    const count = filtered.length;
-    return filtered.map((record, index) => {
-      const x =
-        count === 1 ? width / 2 : (index / (count - 1)) * (width - 20) + 10;
-      const ratio = (record.weightKg - minW) / (maxW - minW || 1);
-      const y = height - 10 - ratio * (height - 40);
-      return { x, y, weight: record.weightKg, dateKey: toDateKey(record.date) };
-    });
-  })();
 
   return (
     <main className={styles.page}>
@@ -169,57 +158,66 @@ export default function DietRecordsGraphPage() {
           <div className={styles.graphContainer}>
             {error && <p className={styles.error}>{error}</p>}
 
-            {!error && graphPoints.length === 0 && (
+            {!error && chartData.length === 0 && (
               <p className={styles.graphEmpty}>
                 表示できる記録がありません。記録をつけると、ここにグラフが表示されます。
               </p>
             )}
 
-            {!error && graphPoints.length > 0 && (
+            {!error && chartData.length > 0 && (
               <div className={styles.graphBody}>
-                <svg
-                  viewBox="0 0 320 180"
-                  preserveAspectRatio="none"
-                  className={styles.graphSvg}
-                >
-                  {/* 背景のグリッド線（縦3・横3くらい） */}
-                  <g stroke="#e5e7eb" strokeWidth="1">
-                    {[1, 2, 3].map((i) => (
-                      <line
-                        key={`h-${i}`}
-                        x1="10"
-                        x2="310"
-                        y1={40 + i * 30}
-                        y2={40 + i * 30}
-                      />
-                    ))}
-                  </g>
-
-                  {/* 折れ線グラフ */}
-                  <polyline
-                    fill="none"
-                    stroke="#2563eb"
-                    strokeWidth="2.5"
-                    strokeLinejoin="round"
-                    strokeLinecap="round"
-                    points={graphPoints
-                      .map((p) => `${p.x},${p.y}`)
-                      .join(" ")}
-                  />
-
-                  {/* 各ポイントのマーカー */}
-                  {graphPoints.map((p) => (
-                    <circle
-                      key={p.dateKey}
-                      cx={p.x}
-                      cy={p.y}
-                      r={3}
-                      fill="#2563eb"
-                      stroke="#ffffff"
-                      strokeWidth={1}
+                <ResponsiveContainer width="100%" height={220}>
+                  <LineChart
+                    data={chartData}
+                    margin={{ top: 16, right: 24, bottom: 24, left: 40 }}
+                  >
+                    <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="dateLabel"
+                      tick={{ fontSize: 10, fill: "#4b5563" }}
+                      tickMargin={8}
+                      axisLine={{ stroke: "#9ca3af" }}
                     />
-                  ))}
-                </svg>
+                    <YAxis
+                      dataKey="weightKg"
+                      tick={{ fontSize: 10, fill: "#4b5563" }}
+                      tickMargin={8}
+                      axisLine={{ stroke: "#9ca3af" }}
+                      domain={["dataMin-1", "dataMax+1"]}
+                      label={{
+                        value: "体重 (kg)",
+                        angle: -90,
+                        position: "insideLeft",
+                        offset: -4,
+                        style: { fill: "#6b7280", fontSize: 10 },
+                      }}
+                    />
+                    <Tooltip
+                      formatter={(value: number) => [
+                        `${(value as number).toFixed(1)}kg`,
+                        "体重",
+                      ]}
+                      labelFormatter={(label: string) => `日付: ${label}`}
+                      contentStyle={{
+                        borderRadius: 8,
+                        borderColor: "#bfdbfe",
+                        backgroundColor: "#f9fafb",
+                        fontSize: 12,
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="weightKg"
+                      stroke="#2563eb"
+                      strokeWidth={2}
+                      dot={{ r: 3 }}
+                      activeDot={{ r: 5 }}
+                      isAnimationActive
+                      animationDuration={400}
+                      animationEasing="ease-in-out"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             )}
           </div>

@@ -20,7 +20,7 @@ const MOOD_OPTIONS: { value: MoodValue; label: string; emoji: string }[] = [
   { value: "BEST", label: "とても良い", emoji: "😄" },
   { value: "GOOD", label: "良い", emoji: "🙂" },
   { value: "NORMAL", label: "ふつう", emoji: "😐" },
-  { value: "BAD", label: "あまり良くない", emoji: "😕" },
+  { value: "BAD", label: "あまり良くない", emoji: "☹️" },
   { value: "WORST", label: "とても良くない", emoji: "😣" },
 ];
 
@@ -333,6 +333,9 @@ export default function DietRecordsCalendarPage() {
         <Link href="/diet-records" className={styles.linkButton}>
           記録画面に戻る
         </Link>
+        <Link href="/diet-records/graph" className={styles.linkButton}>
+          グラフで見る
+        </Link>
 
         <section className={styles.listSection}>
           <h2 className={styles.listTitle}>これまでの記録</h2>
@@ -403,9 +406,7 @@ export default function DietRecordsCalendarPage() {
 
         {selectedDate && (
           <section className={styles.listSection}>
-            <h2 className={styles.listTitle}>
-              {selectedDate} の記録
-            </h2>
+            <h2 className={styles.listTitle}>{selectedDate} の記録</h2>
             {selectedRecord ? (
               <>
                 <p className={styles.infoText}>
@@ -437,12 +438,6 @@ export default function DietRecordsCalendarPage() {
             )}
           </section>
         )}
-
-        <section className={styles.gallerySection}>
-          <h2 className={styles.galleryTitle}>
-            <Link href="/diet-records/gallery">マイギャラリー &gt;</Link>
-          </h2>
-        </section>
       </div>
 
       <div
@@ -457,9 +452,7 @@ export default function DietRecordsCalendarPage() {
           <div ref={sheetRef} className={styles.sheet}>
             <div className={styles.sheetHeader}>
               <span className={styles.sheetTitle}>
-                {selectedDate
-                  ? `${selectedDate} の記録`
-                  : "この日の記録"}
+                {selectedDate ? `${selectedDate} の記録` : "この日の記録"}
               </span>
               <button
                 type="button"
@@ -569,3 +562,4 @@ export default function DietRecordsCalendarPage() {
     </main>
   );
 }
+
