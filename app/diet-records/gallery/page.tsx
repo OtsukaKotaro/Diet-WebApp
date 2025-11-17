@@ -151,7 +151,16 @@ export default function GalleryPage() {
       </div>
 
       {activeRecord && (
-        <div className={styles.noteModalOverlay} role="dialog" aria-modal="true">
+        <div
+          className={styles.noteModalOverlay}
+          role="dialog"
+          aria-modal="true"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              setActiveRecord(null);
+            }
+          }}
+        >
           <div className={styles.noteModal}>
             {activeRecord.photoUrl && (
               <img
@@ -197,4 +206,3 @@ export default function GalleryPage() {
     </main>
   );
 }
-
