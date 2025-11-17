@@ -5,17 +5,24 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import styles from "./NavBar.module.css";
 
-const LINKS = [
-  { href: "/bmi", label: "BMI計算" },
-  { href: "/progress-diagnosis", label: "ダイエット進捗診断" },
-  { href: "/plan-creation", label: "ダイエットプラン作成" },
-];
-
 type CurrentUser = {
   id: string;
   email: string;
   name: string | null;
 };
+
+type NavLink = {
+  href: string;
+  label: string;
+  requiresAuth?: boolean;
+};
+
+const LINKS: NavLink[] = [
+  { href: "/bmi", label: "BMI計算" },
+  { href: "/progress-diagnosis", label: "ダイエット進捗診断" },
+  { href: "/plan-creation", label: "ダイエットプラン作成" },
+  { href: "/diet-records", label: "ダイエット記録", requiresAuth: true },
+];
 
 export function NavBar() {
   const pathname = usePathname();
@@ -34,8 +41,11 @@ export function NavBar() {
         });
         if (!response.ok) return;
         const data = await response.json();
-        if (!cancelled && data.authenticated) {
+        if (cancelled) return;
+        if (data.authenticated) {
           setUser(data.user);
+        } else {
+          setUser(null);
         }
       } catch {
         // ignore
@@ -47,7 +57,7 @@ export function NavBar() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [pathname]);
 
   const showNavPaths = ["/", ...LINKS.map((l) => l.href)];
   if (!showNavPaths.includes(pathname)) {
@@ -79,11 +89,26 @@ export function NavBar() {
             <Link href="/" className={styles.home}>
               ホーム
             </Link>
-            {visibleLinks.map((link) => (
-              <Link key={link.href} href={link.href} className={styles.link}>
-                {link.label}
-              </Link>
-            ))}
+            {visibleLinks.map((link) => {
+              const disabled = link.requiresAuth && !user;
+
+              if (disabled) {
+                return (
+                  <span
+                    key={link.href}
+                    className={`${styles.link} ${styles.linkDisabled}`}
+                  >
+                    {link.label}
+                  </span>
+                );
+              }
+
+              return (
+                <Link key={link.href} href={link.href} className={styles.link}>
+                  {link.label}
+                </Link>
+              );
+            })}
           </>
         )}
         <div className={styles.spacer} />
@@ -114,4 +139,3 @@ export function NavBar() {
     </header>
   );
 }
-

@@ -50,6 +50,12 @@
   background-color: #bfdbfe;
 }
 
+.linkDisabled {
+  color: #9ca3af;
+  background-color: #f3f4f6;
+  cursor: default;
+}
+
 .spacer {
   flex: 1;
 }

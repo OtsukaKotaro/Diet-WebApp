@@ -167,6 +167,27 @@
   color: #64748b;
 }
 
+.cardDisabled {
+  cursor: default;
+  background-color: #f9fafb;
+  border-color: #e5e7eb;
+  color: #9ca3af;
+  box-shadow: none;
+}
+
+.cardDisabled:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.cardNotice {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
 /* Responsive */
 
 @media (min-width: 640px) {
@@ -178,4 +199,3 @@
     font-size: 15px;
   }
 }
-
