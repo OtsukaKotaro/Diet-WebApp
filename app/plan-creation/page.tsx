@@ -6,6 +6,7 @@ import {
   calculateTotalDays,
   calculateIdealDailyChange,
   generatePlan,
+  type PlanStep,
 } from "@/lib/plan-creation";
 import styles from "./page.module.css";
 
@@ -19,7 +20,7 @@ export default function PlanCreationPage() {
   const [totalChange, setTotalChange] = useState<number | null>(null);
   const [totalDays, setTotalDays] = useState<number | null>(null);
   const [idealDailyChange, setIdealDailyChange] = useState<number | null>(null);
-  const [plan, setPlan] = useState<number[]>([]);
+  const [plan, setPlan] = useState<PlanStep[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const handleCalculate = () => {
@@ -205,17 +206,16 @@ export default function PlanCreationPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {plan.map((weight, index) => {
-                        const intervalNum = Number(intervalDays) || 0;
-                        const dayNumber =
-                          intervalNum > 0 ? intervalNum * (index + 1) : null;
+                      {plan.map((step, index) => {
+                        const dayNumber = step.day;
+                        const weight = step.weight;
                         return (
                           <tr key={index}>
                             <td className={styles.td}>{index + 1}</td>
                             <td
                               className={`${styles.td} ${styles.tdRight}`}
                             >
-                              {dayNumber !== null ? dayNumber : "-"}
+                              {dayNumber}
                             </td>
                             <td
                               className={`${styles.td} ${styles.tdRight}`}
@@ -242,4 +242,3 @@ export default function PlanCreationPage() {
     </main>
   );
 }
-

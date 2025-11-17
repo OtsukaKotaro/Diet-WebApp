@@ -45,6 +45,13 @@ const features: Feature[] = [
     badge: "記録",
     requiresAuth: true,
   },
+  {
+    href: "/diet-records/calendar",
+    title: "カレンダー表示",
+    desc: "カレンダーから日付を選んで、これまでの記録を確認・編集できます。",
+    badge: "記録",
+    requiresAuth: true,
+  },
 ];
 
 export default function HomePage() {

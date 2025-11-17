@@ -103,6 +103,53 @@
   font-size: 0.95rem;
 }
 
+.paceBox {
+  margin-bottom: 10px;
+}
+
+.paceHeadline {
+  margin: 0 0 4px;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.paceDetail {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.paceHeadlineGood {
+  color: #16a34a;
+}
+
+.paceHeadlineFast {
+  color: #2563eb;
+}
+
+.paceHeadlineSlow {
+  color: #dc2626;
+}
+
+.paceHeadlineWarning {
+  color: #f97316;
+}
+
+.toggleButton {
+  margin: 8px 0 6px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  border-radius: 999px;
+  border: 1px solid #cbd5f5;
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  cursor: pointer;
+}
+
+.toggleButton:hover {
+  background-color: #dbeafe;
+}
+
 .resultRow {
   display: flex;
   justify-content: space-between;

@@ -83,6 +83,30 @@ export async function POST(request: NextRequest) {
 
     const moodValue = mood as Mood;
 
+    const createData = {
+      userId: user.id,
+      date: parsedDate,
+      weightKg: weight,
+      mood: moodValue,
+      note: note ?? null,
+      photoUrl: photoData ?? null,
+    };
+
+    const updateData: {
+      weightKg: number;
+      mood: Mood;
+      note: string | null;
+      photoUrl?: string | null;
+    } = {
+      weightKg: weight,
+      mood: moodValue,
+      note: note ?? null,
+    };
+
+    if (typeof photoData === "string") {
+      updateData.photoUrl = photoData;
+    }
+
     const record = await prisma.dietRecord.upsert({
       where: {
         userId_date: {
@@ -90,20 +114,8 @@ export async function POST(request: NextRequest) {
           date: parsedDate,
         },
       },
-      create: {
-        userId: user.id,
-        date: parsedDate,
-        weightKg: weight,
-        mood: moodValue,
-        note: note ?? null,
-        photoUrl: photoData ?? null,
-      },
-      update: {
-        weightKg: weight,
-        mood: moodValue,
-        note: note ?? null,
-        photoUrl: photoData ?? null,
-      },
+      create: createData,
+      update: updateData,
       select: {
         id: true,
         date: true,
@@ -116,9 +128,51 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ record }, { status: 201 });
   } catch (error) {
-    console.error(error);
+    console.error("DIET_RECORD_POST_ERROR", error);
     return NextResponse.json(
       { error: "記録の保存中にエラーが発生しました。" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const user = await getCurrentUser(request);
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const body = await request.json();
+    const { id } = body as { id?: string };
+
+    if (!id || typeof id !== "string") {
+      return NextResponse.json(
+        { error: "削除対象の記録IDが指定されていません。" },
+        { status: 400 },
+      );
+    }
+
+    const record = await prisma.dietRecord.findUnique({
+      where: { id },
+      select: { id: true, userId: true },
+    });
+
+    if (!record || record.userId !== user.id) {
+      return NextResponse.json(
+        { error: "削除対象の記録が見つかりません。" },
+        { status: 404 },
+      );
+    }
+
+    await prisma.dietRecord.delete({ where: { id } });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("DIET_RECORD_DELETE_ERROR", error);
+    return NextResponse.json(
+      { error: "記録の削除中にエラーが発生しました。" },
       { status: 500 },
     );
   }

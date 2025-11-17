@@ -28,6 +28,98 @@ type DiagnosisResult = {
   neededDailyChange: number;
 };
 
+type PaceTone = "good" | "fast" | "slow" | "warning";
+
+type PaceEvaluation = {
+  headline: string;
+  detail: string;
+  tone: PaceTone;
+};
+
+function getPaceEvaluation(
+  result: DiagnosisResult,
+  targetDate: string,
+): PaceEvaluation {
+  const { totalChange, currentChange, achievementDate } = result;
+
+  if (!targetDate) {
+    return {
+      headline: "ペースはまだ評価できません",
+      detail: "目標日が設定されていないため、ペースの評価ができません。",
+      tone: "warning",
+    };
+  }
+
+  if (totalChange === 0) {
+    return {
+      headline: "ペースは評価できません",
+      detail: "開始体重と目標体重が同じのため、ペースの評価ができません。",
+      tone: "warning",
+    };
+  }
+
+  // 目標と反対方向（増やしたいのに減っている / 減らしたいのに増えている）
+  if (totalChange * currentChange <= 0) {
+    return {
+      headline: "ちょっと逆方向かも…",
+      detail:
+        "目標とは反対方向に進んでいるようです。まずは今の生活リズムを少し見直してみましょう。",
+      tone: "warning",
+    };
+  }
+
+  if (!achievementDate) {
+    return {
+      headline: "今のままだと少し厳しそう",
+      detail:
+        "このままのペースでは目標日までの達成が難しそうです。食事や活動量を無理のない範囲で見直してみましょう。",
+      tone: "slow",
+    };
+  }
+
+  const target = new Date(`${targetDate}T00:00:00`);
+  const achieve = new Date(`${achievementDate}T00:00:00`);
+
+  if (Number.isNaN(target.getTime()) || Number.isNaN(achieve.getTime())) {
+    return {
+      headline: "ペースを計算できませんでした",
+      detail: "日付の情報が正しくないため、ペースの計算ができませんでした。",
+      tone: "warning",
+    };
+  }
+
+  const msPerDay = 1000 * 60 * 60 * 24;
+  const diffDays = (achieve.getTime() - target.getTime()) / msPerDay;
+
+  // ±1日以内なら「ほぼ予定どおり」
+  if (Math.abs(diffDays) <= 1) {
+    return {
+      headline: "いいペース！その調子です！",
+      detail:
+        "ほぼ予定どおりのペースで進んでいます。この調子で無理なく続けていきましょう。",
+      tone: "good",
+    };
+  }
+
+  // 達成予定日が目標日より早い = 予定より速い
+  if (diffDays < -1) {
+    return {
+      headline: "すごいペース！無理しすぎ注意！",
+      detail:
+        "予定より速いペースで進んでいます。とても頑張れていますが、体調に気をつけて無理のない範囲で続けましょう。",
+      tone: "fast",
+    };
+  }
+
+  // 達成予定日が目標日より遅い = 予定よりゆっくり
+  return {
+    headline: "ちょっとゆっくりペースかも…",
+    detail:
+      "予定より少しゆっくりしたペースです。焦らなくて大丈夫なので、できる範囲で食事や活動量を見直してみましょう。",
+    tone: "slow",
+  };
+}
+
 export default function ProgressDiagnosisPage() {
   const [startDate, setStartDate] = useState("");
   const [startWeight, setStartWeight] = useState("");
@@ -36,10 +128,16 @@ export default function ProgressDiagnosisPage() {
   const [currentWeight, setCurrentWeight] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<DiagnosisResult | null>(null);
+  const [paceEvaluation, setPaceEvaluation] = useState<PaceEvaluation | null>(
+    null,
+  );
+  const [showDetails, setShowDetails] = useState(false);
 
   const handleDiagnosis = () => {
     setError(null);
     setResult(null);
+    setPaceEvaluation(null);
+    setShowDetails(false);
 
     if (
       !startDate ||
@@ -71,7 +169,10 @@ export default function ProgressDiagnosisPage() {
       );
 
       let achievementDate = "";
-      if (realDailyChange > 0 && remainingChange > 0) {
+      const canEstimateAchievement =
+        realDailyChange !== 0 && remainingChange / realDailyChange > 0;
+
+      if (canEstimateAchievement) {
         const achievementDateObj = calAchievementDate(
           remainingChange,
           realDailyChange,
@@ -81,7 +182,7 @@ export default function ProgressDiagnosisPage() {
         }
       }
 
-      setResult({
+      const computedResult: DiagnosisResult = {
         totalChange,
         currentChange,
         progress,
@@ -92,14 +193,15 @@ export default function ProgressDiagnosisPage() {
         realDailyChange,
         achievementDate,
         neededDailyChange,
-      });
+      };
+
+      setResult(computedResult);
+      setPaceEvaluation(getPaceEvaluation(computedResult, targetDate));
     } catch (e) {
       if (e instanceof Error) {
         setError(e.message);
       } else {
-        setError(
-          "診断中にエラーが発生しました。入力値を確認してください。",
-        );
+        setError("診断中にエラーが発生しました。");
       }
     }
   };
@@ -203,70 +305,81 @@ export default function ProgressDiagnosisPage() {
             </p>
           )}
 
-          {result && (
+          {result && paceEvaluation && (
             <div className={styles.result}>
-              <div className={styles.resultRow}>
-                <span className={styles.resultKey}>目標減量</span>
-                <span className={styles.resultValue}>
-                  {result.totalChange.toFixed(1)} kg
-                </span>
+              <div className={styles.paceBox}>
+                <p
+                  className={`${styles.paceHeadline} ${
+                    paceEvaluation.tone === "good"
+                      ? styles.paceHeadlineGood
+                      : paceEvaluation.tone === "fast"
+                        ? styles.paceHeadlineFast
+                        : paceEvaluation.tone === "slow"
+                          ? styles.paceHeadlineSlow
+                          : styles.paceHeadlineWarning
+                  }`}
+                >
+                  {paceEvaluation.headline}
+                </p>
+                <p className={styles.paceDetail}>{paceEvaluation.detail}</p>
               </div>
-              <div className={styles.resultRow}>
-                <span className={styles.resultKey}>暫定減量</span>
-                <span className={styles.resultValue}>
-                  {result.currentChange.toFixed(1)} kg
-                </span>
-              </div>
-              <div className={styles.resultRow}>
-                <span className={styles.resultKey}>進捗率</span>
-                <span className={styles.resultValue}>
-                  {result.progress.toFixed(1)} %
-                </span>
-              </div>
-              <div className={styles.resultRow}>
-                <span className={styles.resultKey}>経過日数</span>
-                <span className={styles.resultValue}>
-                  {result.daysElapsed.toFixed(1)} 日
-                </span>
-              </div>
-              <div className={styles.resultRow}>
-                <span className={styles.resultKey}>残り日数</span>
-                <span className={styles.resultValue}>
-                  {result.remainingDays.toFixed(1)} 日
-                </span>
-              </div>
-              <div className={styles.resultRow}>
-                <span className={styles.resultKey}>残り減量</span>
-                <span className={styles.resultValue}>
-                  {result.remainingChange.toFixed(1)} kg
-                </span>
-              </div>
-              <div className={styles.resultRow}>
-                <span className={styles.resultKey}>理想のペース</span>
-                <span className={styles.resultValue}>
-                  {result.idealDailyChange.toFixed(3)} kg/日
-                </span>
-              </div>
-              <div className={styles.resultRow}>
-                <span className={styles.resultKey}>現在のペース</span>
-                <span className={styles.resultValue}>
-                  {result.realDailyChange.toFixed(3)} kg/日
-                </span>
-              </div>
-              <div className={styles.resultRow}>
-                <span className={styles.resultKey}>達成予定日</span>
-                <span className={styles.resultValue}>
-                  {result.achievementDate
-                    ? `${result.achievementDate} 頃`
-                    : "このままでは達成が難しいです"}
-                </span>
-              </div>
-              <div className={styles.resultRow}>
-                <span className={styles.resultKey}>必要なペース</span>
-                <span className={styles.resultValue}>
-                  {result.neededDailyChange.toFixed(3)} kg/日
-                </span>
-              </div>
+
+              <button
+                type="button"
+                className={styles.toggleButton}
+                onClick={() => setShowDetails((prev) => !prev)}
+              >
+                {showDetails ? "詳細を隠す" : "詳細を表示"}
+              </button>
+
+              {showDetails && (
+                <>
+                  <div className={styles.resultRow}>
+                    <span className={styles.resultKey}>目標減量</span>
+                    <span className={styles.resultValue}>
+                      {result.totalChange.toFixed(1)} kg
+                    </span>
+                  </div>
+                  <div className={styles.resultRow}>
+                    <span className={styles.resultKey}>暫定減量</span>
+                    <span className={styles.resultValue}>
+                      {result.currentChange.toFixed(1)} kg
+                    </span>
+                  </div>
+                  <div className={styles.resultRow}>
+                    <span className={styles.resultKey}>進捗率</span>
+                    <span className={styles.resultValue}>
+                      {result.progress.toFixed(1)} %
+                    </span>
+                  </div>
+                  <div className={styles.resultRow}>
+                    <span className={styles.resultKey}>経過日数</span>
+                    <span className={styles.resultValue}>
+                      {result.daysElapsed.toFixed(1)} 日
+                    </span>
+                  </div>
+                  <div className={styles.resultRow}>
+                    <span className={styles.resultKey}>残り日数</span>
+                    <span className={styles.resultValue}>
+                      {result.remainingDays.toFixed(1)} 日
+                    </span>
+                  </div>
+                  <div className={styles.resultRow}>
+                    <span className={styles.resultKey}>残り減量</span>
+                    <span className={styles.resultValue}>
+                      {result.remainingChange.toFixed(1)} kg
+                    </span>
+                  </div>
+                  <div className={styles.resultRow}>
+                    <span className={styles.resultKey}>達成予定日</span>
+                    <span className={styles.resultValue}>
+                      {result.achievementDate
+                        ? `${result.achievementDate} 頃`
+                        : "このままのペースでは達成が難しいです"}
+                    </span>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </section>

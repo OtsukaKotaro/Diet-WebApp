@@ -16,15 +16,17 @@ export async function sendVerificationEmail(to: string, token: string) {
   }
 
   await resend.emails.send({
-    from: "no-reply@example.com",
+    from: "onboarding@resend.dev",
     to,
     subject: "メールアドレスの確認",
-    text: `以下のリンクをクリックしてメールアドレスを確認してください:\n\n${verifyUrl}\n\nこのリンクは24時間で有効期限が切れます。`,
+    text: `以下のリンクをクリックしてメールアドレスを確認してください。\n\n${verifyUrl}\n\nこのリンクは24時間で有効期限が切れます。`,
   });
 }
 
 export async function sendPasswordResetEmail(to: string, token: string) {
-  const resetUrl = `${appUrl}/reset-password?token=${encodeURIComponent(token)}`;
+  const resetUrl = `${appUrl}/reset-password?token=${encodeURIComponent(
+    token,
+  )}`;
 
   if (!resend) {
     console.log("[sendPasswordResetEmail]", { to, resetUrl });
@@ -32,9 +34,10 @@ export async function sendPasswordResetEmail(to: string, token: string) {
   }
 
   await resend.emails.send({
-    from: "no-reply@example.com",
+    from: "onboarding@resend.dev",
     to,
-    subject: "パスワード再設定",
-    text: `以下のリンクからパスワードを再設定してください:\n\n${resetUrl}\n\nこのリンクは1時間で有効期限が切れます。`,
+    subject: "パスワード再設定のご案内",
+    text: `以下のリンクからパスワードを再設定してください。\n\n${resetUrl}\n\nこのリンクは1時間で有効期限が切れます。`,
   });
 }
+

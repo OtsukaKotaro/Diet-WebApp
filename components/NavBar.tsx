@@ -18,17 +18,20 @@ type NavLink = {
 };
 
 const LINKS: NavLink[] = [
-  { href: "/bmi", label: "BMI計算" },
-  { href: "/progress-diagnosis", label: "ダイエット進捗診断" },
-  { href: "/plan-creation", label: "ダイエットプラン作成" },
+  { href: "/", label: "ホーム" },
+  { href: "/bmi", label: "BMIチェッカー" },
+  { href: "/progress-diagnosis", label: "進捗診断" },
+  { href: "/plan-creation", label: "プラン作成" },
   { href: "/diet-records", label: "ダイエット記録", requiresAuth: true },
+  { href: "/diet-records/calendar", label: "カレンダー表示", requiresAuth: true },
+  { href: "/diet-records/gallery", label: "マイギャラリー", requiresAuth: true },
 ];
 
 export function NavBar() {
-  const pathname = usePathname();
   const router = useRouter();
+  const pathname = usePathname();
   const [user, setUser] = useState<CurrentUser | null>(null);
-  const isHome = pathname === "/";
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,12 +62,10 @@ export function NavBar() {
     };
   }, [pathname]);
 
-  const showNavPaths = ["/", ...LINKS.map((l) => l.href)];
-  if (!showNavPaths.includes(pathname)) {
-    return null;
-  }
-
-  const visibleLinks = LINKS.filter((link) => link.href !== pathname);
+  useEffect(() => {
+    // 画面が切り替わったらメニューを閉じる
+    setOpen(false);
+  }, [pathname]);
 
   async function handleLogout() {
     try {
@@ -73,6 +74,7 @@ export function NavBar() {
         credentials: "include",
       });
       setUser(null);
+      setOpen(false);
       router.push("/");
       router.refresh();
     } catch {
@@ -81,22 +83,61 @@ export function NavBar() {
   }
 
   return (
-    <header className={styles.header}>
-      <nav className={styles.nav}>
-        {!isHome && (
-          <>
-            <span className={styles.title}>ダイエットサポート</span>
-            <Link href="/" className={styles.home}>
-              ホーム
-            </Link>
-            {visibleLinks.map((link) => {
+    <div className={styles.root}>
+      <button
+        type="button"
+        className={`${styles.hamburger} ${open ? styles.hamburgerOpen : ""}`}
+        aria-label="メニューを開く"
+        onClick={() => setOpen((prev) => !prev)}
+      >
+        <span className={styles.hamburgerLine} />
+        <span className={styles.hamburgerLine} />
+        <span className={styles.hamburgerLine} />
+      </button>
+
+      <div
+        className={`${styles.menuOverlay} ${open ? styles.menuOverlayOpen : ""}`}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) {
+            setOpen(false);
+          }
+        }}
+      >
+        <div className={styles.menu}>
+          <div className={styles.menuHeader}>
+            <span className={styles.menuTitle}>メニュー</span>
+            <button
+              type="button"
+              className={styles.menuClose}
+              aria-label="メニューを閉じる"
+              onClick={() => setOpen(false)}
+            >
+              ×
+            </button>
+          </div>
+
+          {user ? (
+            <div className={styles.menuUser}>
+              <span className={styles.menuUserName}>
+                {user.name ?? user.email}
+              </span>
+            </div>
+          ) : (
+            <div className={styles.menuUser}>
+              <span className={styles.menuUserName}>ゲスト</span>
+            </div>
+          )}
+
+          <nav className={styles.menuLinks}>
+            {LINKS.map((link) => {
               const disabled = link.requiresAuth && !user;
+              const isActive = pathname === link.href;
 
               if (disabled) {
                 return (
                   <span
                     key={link.href}
-                    className={`${styles.link} ${styles.linkDisabled}`}
+                    className={`${styles.menuLink} ${styles.menuLinkDisabled}`}
                   >
                     {link.label}
                   </span>
@@ -104,38 +145,41 @@ export function NavBar() {
               }
 
               return (
-                <Link key={link.href} href={link.href} className={styles.link}>
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`${styles.menuLink} ${
+                    isActive ? styles.menuLinkActive : ""
+                  }`}
+                  onClick={() => setOpen(false)}
+                >
                   {link.label}
                 </Link>
               );
             })}
-          </>
-        )}
-        <div className={styles.spacer} />
-        <div className={styles.userArea}>
-          {user ? (
-            <>
-              <span className={styles.userEmail}>
-                {user.name ?? user.email}
-              </span>
+          </nav>
+
+          <div className={styles.menuFooter}>
+            {user ? (
               <button
                 type="button"
-                className={`${styles.authButton} ${styles.logoutButton}`}
+                className={styles.logoutButton}
                 onClick={handleLogout}
               >
                 ログアウト
               </button>
-            </>
-          ) : (
-            <Link
-              href="/auth/login"
-              className={`${styles.authButton} ${styles.loginLink}`}
-            >
-              ログイン
-            </Link>
-          )}
+            ) : (
+              <Link
+                href="/auth/login"
+                className={styles.loginLink}
+                onClick={() => setOpen(false)}
+              >
+                ログイン
+              </Link>
+            )}
+          </div>
         </div>
-      </nav>
-    </header>
+      </div>
+    </div>
   );
 }

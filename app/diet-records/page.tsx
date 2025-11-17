@@ -1,20 +1,11 @@
 "use client";
 
-import type { FormEvent, MouseEvent } from "react";
-import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import styles from "./page.module.css";
 
 type MoodValue = "BEST" | "GOOD" | "NORMAL" | "BAD" | "WORST";
-
-type DietRecord = {
-  id: string;
-  date: string;
-  weightKg: number;
-  mood: MoodValue;
-  note: string | null;
-  photoUrl: string | null;
-};
 
 const MOOD_OPTIONS: { value: MoodValue; label: string; emoji: string }[] = [
   { value: "BEST", label: "とても良い", emoji: "😄" },
@@ -24,14 +15,14 @@ const MOOD_OPTIONS: { value: MoodValue; label: string; emoji: string }[] = [
   { value: "WORST", label: "とても良くない", emoji: "😣" },
 ];
 
-function formatMoodLabel(mood: MoodValue): string {
-  const found = MOOD_OPTIONS.find((m) => m.value === mood);
-  return found?.label ?? "";
-}
-
-function getNotePreview(note: string): string {
-  if (note.length <= 5) return note;
-  return `${note.slice(0, 5)}...`;
+function getTodayKey(): string {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = d.getMonth() + 1;
+  const day = d.getDate();
+  const mm = month.toString().padStart(2, "0");
+  const dd = day.toString().padStart(2, "0");
+  return `${year}-${mm}-${dd}`;
 }
 
 async function resizeImageToDataUrl(file: File): Promise<string | null> {
@@ -45,7 +36,8 @@ async function resizeImageToDataUrl(file: File): Promise<string | null> {
       if (typeof reader.result === "string") resolve(reader.result);
       else reject(new Error("画像の読み込みに失敗しました。"));
     };
-    reader.onerror = () => reject(reader.error ?? new Error("画像の読み込みに失敗しました。"));
+    reader.onerror = () =>
+      reject(reader.error ?? new Error("画像の読み込みに失敗しました。"));
     reader.readAsDataURL(file);
   });
 
@@ -56,11 +48,10 @@ async function resizeImageToDataUrl(file: File): Promise<string | null> {
     img.src = dataUrl;
   });
 
-  const maxSize = 1024; // 長辺 1024px までに縮小
+  const maxSize = 1024;
   let { width, height } = image;
 
   if (width <= maxSize && height <= maxSize) {
-    // すでに小さければそのまま
     return dataUrl;
   }
 
@@ -76,62 +67,24 @@ async function resizeImageToDataUrl(file: File): Promise<string | null> {
 
   ctx.drawImage(image, 0, 0, width, height);
 
-  // JPEG で少し圧縮して出力
   const compressed = canvas.toDataURL("image/jpeg", 0.8);
   return compressed;
 }
 
 export default function DietRecordsPage() {
-  const [date, setDate] = useState(() => {
-    const today = new Date();
-    return today.toISOString().slice(0, 10);
-  });
+  const [date, setDate] = useState(getTodayKey);
   const [weightKg, setWeightKg] = useState("");
   const [mood, setMood] = useState<MoodValue>("NORMAL");
   const [note, setNote] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
-  const [records, setRecords] = useState<DietRecord[]>([]);
-  const [activeNote, setActiveNote] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [requiresLogin, setRequiresLogin] = useState(false);
-
-  useEffect(() => {
-    async function fetchRecords() {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch("/api/diet-records", {
-          method: "GET",
-          credentials: "include",
-        });
-
-        if (response.status === 401) {
-          setRequiresLogin(true);
-          return;
-        }
-
-        if (!response.ok) {
-          setError("記録の取得中にエラーが発生しました。");
-          return;
-        }
-
-        const data = await response.json();
-        setRecords(data.records ?? []);
-      } catch {
-        setError("記録の取得中にエラーが発生しました。");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    void fetchRecords();
-  }, []);
+  const [success, setSuccess] = useState<string | null>(null);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setSuccess(null);
 
     if (!date) {
       setError("日付を入力してください。");
@@ -166,25 +119,24 @@ export default function DietRecordsPage() {
 
     setSubmitting(true);
     try {
+      const body: Record<string, unknown> = {
+        date,
+        weightKg: weight,
+        mood,
+        note: note.trim() || null,
+      };
+      if (photoData) {
+        body.photoData = photoData;
+      }
+
       const response = await fetch("/api/diet-records", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({
-          date,
-          weightKg: weight,
-          mood,
-          note: note.trim() || null,
-          photoData,
-        }),
+        body: JSON.stringify(body),
       });
-
-      if (response.status === 401) {
-        setRequiresLogin(true);
-        return;
-      }
 
       const data = await response.json();
 
@@ -193,42 +145,11 @@ export default function DietRecordsPage() {
         return;
       }
 
-      const record: DietRecord = data.record;
-
-      setRecords((prev) => {
-        const others = prev.filter((r) => r.id !== record.id);
-        return [record, ...others].sort((a, b) => (a.date < b.date ? 1 : -1));
-      });
-
-      // 送信後も同じ写真を再利用できるよう、photoFile はそのまま
+      setSuccess("記録を保存しました。");
     } catch {
       setError("記録の保存中にエラーが発生しました。");
     } finally {
       setSubmitting(false);
-    }
-  }
-
-  if (requiresLogin) {
-    return (
-      <main className={styles.page}>
-        <div className={styles.inner}>
-          <h1 className={styles.title}>ダイエット記録</h1>
-          <p className={styles.subtitle}>
-            この機能を利用するには、ログインが必要です。
-          </p>
-          <Link href="/auth/login" className={styles.linkButton}>
-            ログイン画面へ
-          </Link>
-        </div>
-      </main>
-    );
-  }
-
-  const galleryRecords = records.filter((record) => record.photoUrl);
-
-  function handleNoteOverlayClick(event: MouseEvent<HTMLDivElement>) {
-    if (event.target === event.currentTarget) {
-      setActiveNote(null);
     }
   }
 
@@ -237,7 +158,7 @@ export default function DietRecordsPage() {
       <div className={styles.inner}>
         <h1 className={styles.title}>ダイエット記録</h1>
         <p className={styles.subtitle}>
-          日付と体重、その日の気分やメモ、写真を記録して、ダイエットの進み具合を振り返りやすくします。
+          今日の体重や気分をサッと記録しておきましょう。過去の記録はカレンダー画面から確認できます。
         </p>
 
         <form className={styles.form} onSubmit={handleSubmit}>
@@ -315,6 +236,7 @@ export default function DietRecordsPage() {
           </label>
 
           {error && <p className={styles.error}>{error}</p>}
+          {success && <p className={styles.infoText}>{success}</p>}
 
           <button
             className={styles.button}
@@ -326,112 +248,19 @@ export default function DietRecordsPage() {
         </form>
 
         <section className={styles.listSection}>
-          <h2 className={styles.listTitle}>これまでの記録</h2>
-
-          {loading && <p className={styles.infoText}>読み込み中です...</p>}
-
-          {!loading && records.length === 0 && (
-            <p className={styles.infoText}>
-              まだ記録がありません。まずは今日の体重を記録してみましょう。
-            </p>
-          )}
-
-          {!loading && records.length > 0 && (
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>日付</th>
-                  <th>体重(kg)</th>
-                  <th>気分</th>
-                  <th>メモ</th>
-                </tr>
-              </thead>
-              <tbody>
-                {records.map((record) => {
-                  const fullNote = record.note ?? "";
-                  const hasNote = fullNote.length > 0;
-                  const isLong = fullNote.length > 5;
-                  const displayNote = !hasNote
-                    ? ""
-                    : isLong
-                      ? getNotePreview(fullNote)
-                      : fullNote;
-
-                  return (
-                    <tr key={record.id}>
-                      <td>
-                        {new Date(record.date).toLocaleDateString("ja-JP", {
-                          year: "numeric",
-                          month: "2-digit",
-                          day: "2-digit",
-                        })}
-                      </td>
-                      <td>{record.weightKg.toFixed(1)}</td>
-                      <td>{formatMoodLabel(record.mood)}</td>
-                      <td>
-                        {hasNote ? (
-                          <button
-                            type="button"
-                            className={styles.noteButton}
-                            onClick={() => {
-                              if (isLong) {
-                                setActiveNote(fullNote);
-                              }
-                            }}
-                          >
-                            <span className={styles.noteText}>
-                              {displayNote}
-                            </span>
-                            {isLong && (
-                              <span className={styles.noteToggleLabel}>
-                                全文を表示
-                              </span>
-                            )}
-                          </button>
-                        ) : (
-                          <span className={styles.notePlaceholder}>-</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
+          <h2 className={styles.listTitle}>過去の記録</h2>
+          <Link href="/diet-records/calendar" className={styles.linkButton}>
+            カレンダー表示で見る &gt;
+          </Link>
         </section>
 
         <section className={styles.gallerySection}>
           <h2 className={styles.galleryTitle}>
             <Link href="/diet-records/gallery">マイギャラリー &gt;</Link>
           </h2>
-
-          {galleryRecords.length === 0 && (
-            <p className={styles.infoText}>
-              写真付きの記録はまだありません。写真を登録すると、マイギャラリーで一覧できます。
-            </p>
-          )}
         </section>
       </div>
-
-      {activeNote && (
-        <div
-          className={styles.noteModalOverlay}
-          role="dialog"
-          aria-modal="true"
-          onClick={handleNoteOverlayClick}
-        >
-          <div className={styles.noteModal}>
-            <div className={styles.noteModalBody}>{activeNote}</div>
-            <button
-              type="button"
-              className={styles.noteModalClose}
-              onClick={() => setActiveNote(null)}
-            >
-              閉じる
-            </button>
-          </div>
-        </div>
-      )}
     </main>
   );
 }
+

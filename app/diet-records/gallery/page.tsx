@@ -98,10 +98,6 @@ export default function GalleryPage() {
     <main className={styles.page}>
       <div className={styles.inner}>
         <h1 className={styles.title}>マイギャラリー</h1>
-        <p className={styles.subtitle}>
-          写真付きで記録した日を、3枚並びの一覧で確認できます。
-        </p>
-
         <Link href="/diet-records" className={styles.linkButton}>
           記録画面に戻る
         </Link>
@@ -180,4 +176,3 @@ export default function GalleryPage() {
     </main>
   );
 }
-
