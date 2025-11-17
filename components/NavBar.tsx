@@ -63,7 +63,6 @@ export function NavBar() {
   }, [pathname]);
 
   useEffect(() => {
-    // 画面が切り替わったらメニューを閉じる
     setOpen(false);
   }, [pathname]);
 
@@ -121,6 +120,13 @@ export function NavBar() {
               <span className={styles.menuUserName}>
                 {user.name ?? user.email}
               </span>
+              <Link
+                href="/mypage"
+                className={styles.menuUserLink}
+                onClick={() => setOpen(false)}
+              >
+                マイページ
+              </Link>
             </div>
           ) : (
             <div className={styles.menuUser}>
@@ -183,3 +189,4 @@ export function NavBar() {
     </div>
   );
 }
+

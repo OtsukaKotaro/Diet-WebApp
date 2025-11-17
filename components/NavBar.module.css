@@ -92,11 +92,26 @@
 
 .menuUser {
   margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
 }
 
 .menuUserName {
   font-size: 0.85rem;
   color: #4b5563;
+}
+
+.menuUserLink {
+  font-size: 0.8rem;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.menuUserLink:hover {
+  text-decoration: underline;
 }
 
 .menuLinks {
